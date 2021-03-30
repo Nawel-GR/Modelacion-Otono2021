@@ -218,10 +218,10 @@ class GreenShaderProgram:
 class SunsetShaderProgram:
     """
     Clase para guardar el los shaders compilados
-    Contiene los shaders para generar el efecto atardecer alterando las componentes del rgb
+    Contiene los shaders basicos (sin efectos)
     """
     def __init__(self):
-        # Vertex shader no de modifica
+
         vertex_shader = """
             #version 130
 
@@ -231,23 +231,20 @@ class SunsetShaderProgram:
             out vec3 newColor;
             void main()
             {
-                gl_Position = vec4(position, 1.0f);
+                vec3 newpos = vec3(position[0]/3, position[1]/3,position[2]/3);
+                gl_Position = vec4(newpos, 1.0f);
                 newColor = color;
             }
             """
-         # Se modifica el fragment shader para alterar los comoponentes rgb del color original
+
         fragment_shader = """
             #version 130
             in vec3 newColor;
 
             out vec4 outColor;
             void main()
-            {   
-                float newRed = newColor.r + 0.4; // Se modifica la componente roja
-                float newGreen = newColor.g + 0.2; // Se modifica la componente verde
-                float newBlue = newColor.b * 0.1; // Se modifica la componente azul
-                vec3 finalColor = vec3(newRed, newGreen, newBlue); // Se crea el nuevo vector rgb
-                outColor = vec4(finalColor, 1.0f); // Se asigna el color final
+            {
+                outColor = vec4(newColor, 1.0f);
             }
             """
 
@@ -260,6 +257,7 @@ class SunsetShaderProgram:
         """
         Se le "dice" al shader como leer los bytes de la gpuShape asignada
         """
+
         glBindVertexArray(gpuShape.vao)
 
         glBindBuffer(GL_ARRAY_BUFFER, gpuShape.vbo)
@@ -302,8 +300,8 @@ def create_sky(y0, y1):
     # Defining the location and colors of each vertex  of the shape
     vertices = [
     #   positions        colors
-        -1.0, y0, 0.0,  0.0, 1.0, 1.0,
-         1.0, y0, 0.0,  0.0, 1.0, 1.0,
+        -1.0, y0, 0.0,  0.3, 1.0, 1.0,
+         1.0, y0, 0.0,  0.3, 1.0, 1.0,
          1.0, y1, 0.0,  0.8, 1.0, 1.0,
         -1.0, y1, 0.0,  0.8, 1.0, 1.0]
 
@@ -388,16 +386,16 @@ def create_triangulo(y0,y1):
     # Defining the location and colors of each vertex  of the shape
     vertices = [
     #   positions                           colors
-         -0.4, y1 ,               0.0,  0.6, 1.0, 1.0,
-         -0.14, y1 ,              0.0,  0.6, 1.0, 1.0,
+         -0.4, y1 ,               0.0,  0.64, 1.0, 1.0,
+         -0.14, y1 ,              0.0,  0.64, 1.0, 1.0,
          -0.27, y0 ,              0.0,  0.4, 1.0, 1.0,
 
-         -0.14 , y1 ,             0.0,  0.6, 1.0, 1.0,
-         0.12, y1 ,               0.0,  0.6, 1.0, 1.0,
+         -0.14 , y1 ,             0.0,  0.64, 1.0, 1.0,
+         0.12, y1 ,               0.0,  0.64, 1.0, 1.0,
          -0.01, y0 ,              0.0,  0.4, 1.0, 1.0,
 
-         0.12, y1 ,               0.0,  0.6, 1.0, 1.0,
-         0.4, y1 ,                0.0,  0.6, 1.0, 1.0,
+         0.12, y1 ,               0.0,  0.64, 1.0, 1.0,
+         0.4, y1 ,                0.0,  0.64, 1.0, 1.0,
          0.25, y0,                0.0,  0.4, 1.0, 1.0]
         
 
