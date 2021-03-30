@@ -1,7 +1,3 @@
-"""P5) [Efectos con Shaders] Realice un par de shaders, donde el primero solo dibuje los píxeles con un tono verde
- y el segundo represente un modo atardecer. Además agregue la funcionalidad de que se puedan alternar entre los shaders
-apretando teclas. Con [Q] activa el primer efecto, y con [W] activa el segundo ejemplo"""
-
 import glfw
 from OpenGL.GL import *
 import OpenGL.GL.shaders
@@ -318,6 +314,7 @@ def create_sky(y0, y1):
 
     return Shape(vertices, indices)
 
+
 def create_ocean(y0, y1):
     """
     Funcion para crear rectangulo que represente el oceano
@@ -329,10 +326,10 @@ def create_ocean(y0, y1):
     # Defining the location and colors of each vertex  of the shape
     vertices = [
     #   positions        colors
-        -1.0, y0, 0.0,  0.0, 0.0, 0.5,
-         1.0, y0, 0.0,  0.0, 0.0, 0.5,
-         1.0, y1, 0.0,  0.2, 0.4, 1.0,
-        -1.0, y1, 0.0,  0.2, 0.4, 1.0]
+        -0.25, y0, 0.0,  0.0, 0.0, 0.5,
+         0.25, y0, -0.25,  0.0, 0.0, 0.5,
+         0.25, y1, 0.0,  0.2, 0.4, 1.0,
+        -0.25, y1, -0.25,  0.2, 0.4, 1.0]
 
     # Defining connections among vertices
     # We have a triangle every 3 indices specified
@@ -340,6 +337,7 @@ def create_ocean(y0, y1):
                 2, 3, 0]
 
     return Shape(vertices, indices)
+    
 
 def create_island(x0, y0, width, height):
     """
@@ -440,7 +438,7 @@ if __name__ == "__main__":
     """
 
     # 1- Creamos la Figura del cielo en la GPU
-    sky_shape = create_sky(y0=-0.2, y1=1.0) # Creamos los vertices e indices (guardandolos en un objeto shape)
+    sky_shape = create_sky(y0=-1, y1=1.0) # Creamos los vertices e indices (guardandolos en un objeto shape)
     gpu_sky = GPUShape().initBuffers() # Se le pide memoria a la GPU para guardar la figura
     simplePipeline.setupVAO(gpu_sky) # Se le dice al ShaderProgram NORMAL como leer esta parte de la memoria 
     greenPipeline.setupVAO(gpu_sky) # Se le dice al ShaderProgram del EFECTO 1 (VERDE) como leer esta parte de la memoria 
@@ -448,7 +446,7 @@ if __name__ == "__main__":
     gpu_sky.fillBuffers(sky_shape.vertices, sky_shape.indices, GL_STATIC_DRAW) # Llenamos esta memoria de la GPU con los vertices e indices
 
     # 2- Creamos la Figura del oceano en la GPU
-    ocean_shape = create_ocean(y0=-1.0, y1=-0.2) # Creamos los vertices e indices (guardandolos en un objeto shape)
+    ocean_shape = create_ocean(y0=-0.25, y1=0.25) # Creamos los vertices e indices (guardandolos en un objeto shape)
     gpu_ocean = GPUShape().initBuffers() # Se le pide memoria a la GPU para guardar la figura
     simplePipeline.setupVAO(gpu_ocean) # Se le dice al ShaderProgram NORMAL como leer esta parte de la memoria 
     greenPipeline.setupVAO(gpu_ocean) # Se le dice al ShaderProgram del EFECTO 1 (VERDE) como leer esta parte de la memoria 
@@ -456,7 +454,7 @@ if __name__ == "__main__":
     gpu_ocean.fillBuffers(ocean_shape.vertices, ocean_shape.indices, GL_STATIC_DRAW) # Llenamos esta memoria de la GPU con los vertices e indices
 
      # 3- Creamos la Figura de la isla en la GPU
-    island_shape = create_island(x0=-0.8, y0=-0.2, width=1.6, height=0.4) # Creamos los vertices e indices (guardandolos en un objeto shape)
+    island_shape = create_island(x0=-0.8, y0=-1, width=1.6, height=0.4) # Creamos los vertices e indices (guardandolos en un objeto shape)
     gpu_island = GPUShape().initBuffers() # Se le pide memoria a la GPU para guardar la figura
     simplePipeline.setupVAO(gpu_island) # Se le dice al ShaderProgram NORMAL como leer esta parte de la memoria 
     greenPipeline.setupVAO(gpu_island) # Se le dice al ShaderProgram del EFECTO 1 (VERDE) como leer esta parte de la memoria 
@@ -464,7 +462,7 @@ if __name__ == "__main__":
     gpu_island.fillBuffers(island_shape.vertices, island_shape.indices, GL_STATIC_DRAW) # Llenamos esta memoria de la GPU con los vertices e indices
 
     # 4- Creamos la Figura del volcan en la GPU 
-    volcano_shape = create_volcano(x0=-0.3, y0=-0.22, width=0.6, height=0.4) # Creamos los vertices e indices (guardandolos en un objeto shape)
+    volcano_shape = create_volcano(x0=-0.3, y0=-1, width=0.6, height=0.4) # Creamos los vertices e indices (guardandolos en un objeto shape)
     gpu_volcano = GPUShape().initBuffers() # Se le pide memoria a la GPU para guardar la figura
     simplePipeline.setupVAO(gpu_volcano) # Se le dice al ShaderProgram NORMAL como leer esta parte de la memoria 
     greenPipeline.setupVAO(gpu_volcano) # Se le dice al ShaderProgram del EFECTO 1 (VERDE) como leer esta parte de la memoria 
