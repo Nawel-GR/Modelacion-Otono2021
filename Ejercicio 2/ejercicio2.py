@@ -347,10 +347,10 @@ def create_island(y0, y1):
     # Defining the location and colors of each vertex  of the shape
     vertices = [
     #   positions        colors
-        -0.25, y0, 0.0,  0.0, 0.0, 0.5,
-         0.25, y0, 0.0,  0.0, 0.0, 0.5,
-         0.2, y1, 0.0,  0.2, 0.4, 1.0,
-        -0.2, y1, 0.0,  0.2, 0.4, 1.0]
+        -0.3, y0, 0.0,  0.0, 0.0, 0.5,
+         0.3, y0, 0.0,  0.0, 0.0, 0.5,
+         0.4, y1, 0.0,  0.2, 0.4, 1.0,
+        -0.4, y1, 0.0,  0.2, 0.4, 1.0]
 
     # Defining connections among vertices
     # We have a triangle every 3 indices specified
@@ -368,10 +368,10 @@ def create_volcano(y0, y1):
     # Defining the location and colors of each vertex  of the shape
     vertices = [
     #   positions        colors
-        -0.25, y0, 0.0,  0.0, 0.0, 0.5,
-         0.25, y0, 0.0,  0.0, 0.0, 0.5,
-         0.2, y1, 0.0,  0.2, 0.4, 1.0,
-        -0.2, y1, 0.0,  0.2, 0.4, 1.0]
+        -0.35, y0, 0.0,  0.0, 0.0, 0.5,
+         0.35, y0, 0.0,  0.0, 0.0, 0.5,
+         0.3, y1, 0.0,  0.2, 0.4, 1.0,
+        -0.3, y1, 0.0,  0.2, 0.4, 1.0]
 
     # Defining connections among vertices
     # We have a triangle every 3 indices specified
@@ -379,6 +379,37 @@ def create_volcano(y0, y1):
                 2, 3, 0]
 
     return Shape(vertices, indices)
+
+def create_triangulo(y0,y1):
+    """
+    Funcion para crear rectangulo que represente el oceano
+
+    """
+    # Defining the location and colors of each vertex  of the shape
+    vertices = [
+    #   positions                           colors
+         -0.4, y1 ,               0.0,  0.0, 0.0, 0.0,
+         -0.14, y1 ,              0.0,  0.0, 0.0, 0.0,
+         -0.27, y0 ,              0.0,  0.0, 0.0, 0.0,
+
+         -0.14 , y1 ,              0.0,  1, 0.0, 1,
+         0.12, y1 ,              0.0,  1, 0.0, 1,
+         -0.1, y0 ,              0.0,  1, 0.0, 1,
+
+         0.12, y1 ,               0.0,  0.0, 1, 0.0,
+         0.4, y1 ,              0.0,  0.0, 1, 0.0,
+         0.25, y0,               0.0,  0.0, 1, 0.0]
+        
+
+    # Defining connections among vertices
+    # We have a triangle every 3 indices specified
+    indices = [0, 1, 2,
+               3 , 4, 5,
+               7, 8, 9]
+
+    return Shape(vertices, indices)
+
+
 
 if __name__ == "__main__":
     """
@@ -433,7 +464,7 @@ if __name__ == "__main__":
     gpu_ocean.fillBuffers(ocean_shape.vertices, ocean_shape.indices, GL_STATIC_DRAW) # Llenamos esta memoria de la GPU con los vertices e indices
 
      # 3- Creamos la Figura de la isla en la GPU
-    island_shape = create_island(y0=0.2, y1=0.3) # Creamos los vertices e indices (guardandolos en un objeto shape)
+    island_shape = create_island(y0=0.075, y1=0.4) # Creamos los vertices e indices (guardandolos en un objeto shape)
     gpu_island = GPUShape().initBuffers() # Se le pide memoria a la GPU para guardar la figura
     simplePipeline.setupVAO(gpu_island) # Se le dice al ShaderProgram NORMAL como leer esta parte de la memoria 
     greenPipeline.setupVAO(gpu_island) # Se le dice al ShaderProgram del EFECTO 1 (VERDE) como leer esta parte de la memoria 
@@ -441,12 +472,20 @@ if __name__ == "__main__":
     gpu_island.fillBuffers(island_shape.vertices, island_shape.indices, GL_STATIC_DRAW) # Llenamos esta memoria de la GPU con los vertices e indices
 
     # 4- Creamos la Figura del volcan en la GPU 
-    volcano_shape = create_volcano(y0=0.0, y1=0.055) # Creamos los vertices e indices (guardandolos en un objeto shape)
+    volcano_shape = create_volcano(y0=0.0, y1=0.075) # Creamos los vertices e indices (guardandolos en un objeto shape)
     gpu_volcano = GPUShape().initBuffers() # Se le pide memoria a la GPU para guardar la figura
     simplePipeline.setupVAO(gpu_volcano) # Se le dice al ShaderProgram NORMAL como leer esta parte de la memoria 
     greenPipeline.setupVAO(gpu_volcano) # Se le dice al ShaderProgram del EFECTO 1 (VERDE) como leer esta parte de la memoria 
     sunsetPipeline.setupVAO(gpu_volcano) # Se le dice al ShaderProgram del EFECTO 2 (ATARDECER) como leer esta parte de la memoria 
     gpu_volcano.fillBuffers(volcano_shape.vertices, volcano_shape.indices, GL_STATIC_DRAW) # Llenamos esta memoria de la GPU con los vertices e indices
+
+     # 5- Creamos la Figura del triangulo en la GPU
+    triangulo_shape = create_triangulo(y0=0.3, y1=0.4) # Creamos los vertices e indices (guardandolos en un objeto shape)
+    gpu_triangulo = GPUShape().initBuffers() # Se le pide memoria a la GPU para guardar la figura
+    simplePipeline.setupVAO(gpu_triangulo) # Se le dice al ShaderProgram NORMAL como leer esta parte de la memoria 
+    greenPipeline.setupVAO(gpu_triangulo) # Se le dice al ShaderProgram del EFECTO 1 (VERDE) como leer esta parte de la memoria 
+    sunsetPipeline.setupVAO(gpu_triangulo) # Se le dice al ShaderProgram del EFECTO 2 (ATARDECER) como leer esta parte de la memoria 
+    gpu_triangulo.fillBuffers(triangulo_shape.vertices, triangulo_shape.indices, GL_STATIC_DRAW) # Llenamos esta memoria de la GPU con los vertices e indices
 
 
     # Color de fondo de la visualizacion
@@ -477,6 +516,7 @@ if __name__ == "__main__":
             greenPipeline.drawCall(gpu_ocean) # Se dibuja el oceano
             greenPipeline.drawCall(gpu_island) # Se dibuja la isla
             greenPipeline.drawCall(gpu_volcano) # Se dibuja el volcan
+            greenPipeline.drawCall(gpu_triangulo) # Se dibuja el triangulo
         # Si esta el efecto 2 activado (se activa o desactiva con la tecla [W]
         # Se usa el shaderProgram del efecto 2: atardecer
         elif (controller.effect2):
@@ -486,6 +526,7 @@ if __name__ == "__main__":
             sunsetPipeline.drawCall(gpu_ocean) # Se dibuja el oceano
             sunsetPipeline.drawCall(gpu_island) # Se dibuja la isla
             sunsetPipeline.drawCall(gpu_volcano) # Se dibuja el volcan
+            sunsetPipeline.drawCall(gpu_triangulo) # Se dibuja el triangulo
         # Si no hay un efecto activado
         # Se usa el shaderProgram normal
         else:
@@ -495,6 +536,7 @@ if __name__ == "__main__":
             simplePipeline.drawCall(gpu_ocean) # Se dibuja el oceano
             simplePipeline.drawCall(gpu_island) # Se dibuja la isla
             simplePipeline.drawCall(gpu_volcano) # Se dibuja el volcan
+            simplePipeline.drawCall(gpu_triangulo) # Se dibuja el triangulo
 
         # Once the render is done, buffers are swapped, showing only the complete scene.
         glfw.swap_buffers(window)
@@ -504,5 +546,6 @@ if __name__ == "__main__":
     gpu_ocean.clear()
     gpu_island.clear()
     gpu_volcano.clear()
+    gpu_triangulo.clear()
 
     glfw.terminate()
