@@ -326,10 +326,10 @@ def create_ocean(y0, y1):
     # Defining the location and colors of each vertex  of the shape
     vertices = [
     #   positions        colors
-        -0.20, y0, 0.0,  0.0, 0.0, 0.5,
-         0.20, y0, 0.0,  0.0, 0.0, 0.5,
-         0.20, y1, 0.0,  0.2, 0.4, 1.0,
-        -0.20, y1, 0.0,  0.2, 0.4, 1.0]
+        -0.20, y0, 0.0,  0.64, 0.64, 0.75,
+         0.20, y0, 0.0,  0.64, 0.64, 0.75,
+         0.20, y1, 0.0,  0.50, 0.50, 0.75,
+        -0.20, y1, 0.0,  0.50, 0.50, 0.75]
 
     # Defining connections among vertices
     # We have a triangle every 3 indices specified
@@ -347,10 +347,10 @@ def create_island(y0, y1):
     # Defining the location and colors of each vertex  of the shape
     vertices = [
     #   positions        colors
-        -0.3, y0, 0.0,  0.0, 0.0, 0.5,
-         0.3, y0, 0.0,  0.0, 0.0, 0.5,
-         0.4, y1, 0.0,  0.2, 0.4, 1.0,
-        -0.4, y1, 0.0,  0.2, 0.4, 1.0]
+        -0.3, y0, 0.0,  1.0, 0.85, 0.1,
+         0.3, y0, 0.0,  1.0, 0.85, 0.1,
+         0.4, y1, 0.0,  1.0, 1.0, 0.3,
+        -0.4, y1, 0.0,  1.0, 1.0, 0.3]
 
     # Defining connections among vertices
     # We have a triangle every 3 indices specified
@@ -368,10 +368,10 @@ def create_volcano(y0, y1):
     # Defining the location and colors of each vertex  of the shape
     vertices = [
     #   positions        colors
-        -0.35, y0, 0.0,  0.0, 0.0, 0.5,
-         0.35, y0, 0.0,  0.0, 0.0, 0.5,
-         0.3, y1, 0.0,  0.2, 0.4, 1.0,
-        -0.3, y1, 0.0,  0.2, 0.4, 1.0]
+        -0.35, y0, 0.0,  1.0, 0.8, 0.0,
+         0.35, y0, 0.0,  1.0, 0.8, 0.0,
+         0.3, y1, 0.0,   1.0, 0.85, 0.1,
+        -0.3, y1, 0.0,   1.0, 0.85, 0.1]
 
     # Defining connections among vertices
     # We have a triangle every 3 indices specified
@@ -388,29 +388,66 @@ def create_triangulo(y0,y1):
     # Defining the location and colors of each vertex  of the shape
     vertices = [
     #   positions                           colors
-         -0.4, y1 ,               0.0,  0.0, 0.0, 0.0,
-         -0.14, y1 ,              0.0,  0.0, 0.0, 0.0,
-         -0.27, y0 ,              0.0,  0.0, 0.0, 0.0,
+         -0.4, y1 ,               0.0,  0.6, 1.0, 1.0,
+         -0.14, y1 ,              0.0,  0.6, 1.0, 1.0,
+         -0.27, y0 ,              0.0,  0.4, 1.0, 1.0,
 
-         -0.14 , y1 ,              0.0,  1, 0.0, 1,
-         0.12, y1 ,              0.0,  1, 0.0, 1,
-         -0.1, y0 ,              0.0,  1, 0.0, 1,
+         -0.14 , y1 ,             0.0,  0.6, 1.0, 1.0,
+         0.12, y1 ,               0.0,  0.6, 1.0, 1.0,
+         -0.01, y0 ,              0.0,  0.4, 1.0, 1.0,
 
-         0.12, y1 ,               0.0,  0.0, 1, 0.0,
-         0.4, y1 ,              0.0,  0.0, 1, 0.0,
-         0.25, y0,               0.0,  0.0, 1, 0.0]
+         0.12, y1 ,               0.0,  0.6, 1.0, 1.0,
+         0.4, y1 ,                0.0,  0.6, 1.0, 1.0,
+         0.25, y0,                0.0,  0.4, 1.0, 1.0]
         
 
     # Defining connections among vertices
     # We have a triangle every 3 indices specified
     indices = [0, 1, 2,
                3 , 4, 5,
-               7, 8, 9]
+               6, 7, 8]
 
     return Shape(vertices, indices)
 
+def create_franja(y0, y1):
+    """
+    Funcion para crear rectangulo que representa una franja
 
+    """
+    # Defining the location and colors of each vertex  of the shape
+    vertices = [
+    #   positions        colors
+        -0.31, y0, 0.0,  1.0, 0.0, 0.0,
+         0.31, y0, 0.0,  1.0, 0.0, 0.0,
+         0.3, y1, 0.0,   1.0, 0.5, 0.5,
+        -0.3, y1, 0.0,   1.0, 0.5, 0.5]
 
+    # Defining connections among vertices
+    # We have a triangle every 3 indices specified
+    indices = [0, 1, 2,
+                2, 3, 0]
+
+    return Shape(vertices, indices)
+
+def create_rubi(y0, y1,y2):
+    """
+    Funcion para crear rectangulo que representa un rubi
+
+    """
+    # Defining the location and colors of each vertex  of the shape
+    vertices = [
+    #   positions        colors
+        0.0, y0, 0.0,   1.0, 0.4, 0.4,
+        0.03, y1, 0.0,  1.0, 0.2, 0.2,
+        0, y2, 0.0,     1.0, 0.0, 0.0,
+        -0.03, y1, 0.0,  1.0, 0.2, 0.2]
+
+    # Defining connections among vertices
+    # We have a triangle every 3 indices specified
+    indices = [0, 1, 2,
+                2, 3, 0]
+
+    return Shape(vertices, indices)
 if __name__ == "__main__":
     """
     Funcion o bloque que se ejecuta al correr el codigo
@@ -425,7 +462,7 @@ if __name__ == "__main__":
     height = 800
 
     # Se crea la ventana con el titulo asignado
-    window = glfw.create_window(width, height, "P5: Efectos con shaders", None, None)
+    window = glfw.create_window(width, height, "Ejercicio 2", None, None)
 
     if not window:
         glfw.terminate()
@@ -487,6 +524,22 @@ if __name__ == "__main__":
     sunsetPipeline.setupVAO(gpu_triangulo) # Se le dice al ShaderProgram del EFECTO 2 (ATARDECER) como leer esta parte de la memoria 
     gpu_triangulo.fillBuffers(triangulo_shape.vertices, triangulo_shape.indices, GL_STATIC_DRAW) # Llenamos esta memoria de la GPU con los vertices e indices
 
+    # 6- Creamos la Figura de la franja en la GPU 
+    franja_shape = create_franja(y0=0.06, y1=0.07) # Creamos los vertices e indices (guardandolos en un objeto shape)
+    gpu_franja = GPUShape().initBuffers() # Se le pide memoria a la GPU para guardar la figura
+    simplePipeline.setupVAO(gpu_franja) # Se le dice al ShaderProgram NORMAL como leer esta parte de la memoria 
+    greenPipeline.setupVAO(gpu_franja) # Se le dice al ShaderProgram del EFECTO 1 (VERDE) como leer esta parte de la memoria 
+    sunsetPipeline.setupVAO(gpu_franja) # Se le dice al ShaderProgram del EFECTO 2 (ATARDECER) como leer esta parte de la memoria 
+    gpu_franja.fillBuffers(franja_shape.vertices, franja_shape.indices, GL_STATIC_DRAW)
+
+    # 6- Creamos la Figura de rubi en la GPU 
+    rubi_shape = create_rubi(y0=0.1, y1=0.175, y2=0.25) # Creamos los vertices e indices (guardandolos en un objeto shape)
+    gpu_rubi = GPUShape().initBuffers() # Se le pide memoria a la GPU para guardar la figura
+    simplePipeline.setupVAO(gpu_rubi) # Se le dice al ShaderProgram NORMAL como leer esta parte de la memoria 
+    greenPipeline.setupVAO(gpu_rubi) # Se le dice al ShaderProgram del EFECTO 1 (VERDE) como leer esta parte de la memoria 
+    sunsetPipeline.setupVAO(gpu_rubi) # Se le dice al ShaderProgram del EFECTO 2 (ATARDECER) como leer esta parte de la memoria 
+    gpu_rubi.fillBuffers(rubi_shape.vertices, rubi_shape.indices, GL_STATIC_DRAW)
+
 
     # Color de fondo de la visualizacion
     glClearColor(0.2, 0.2, 0.2, 1.0)
@@ -517,6 +570,8 @@ if __name__ == "__main__":
             greenPipeline.drawCall(gpu_island) # Se dibuja la isla
             greenPipeline.drawCall(gpu_volcano) # Se dibuja el volcan
             greenPipeline.drawCall(gpu_triangulo) # Se dibuja el triangulo
+            greenPipeline.drawCall(gpu_franja) # Se dibuja de la franja
+            greenPipeline.drawCall(gpu_rubi) # Se dibuja el rubi
         # Si esta el efecto 2 activado (se activa o desactiva con la tecla [W]
         # Se usa el shaderProgram del efecto 2: atardecer
         elif (controller.effect2):
@@ -527,6 +582,8 @@ if __name__ == "__main__":
             sunsetPipeline.drawCall(gpu_island) # Se dibuja la isla
             sunsetPipeline.drawCall(gpu_volcano) # Se dibuja el volcan
             sunsetPipeline.drawCall(gpu_triangulo) # Se dibuja el triangulo
+            sunsetPipeline.drawCall(gpu_franja) # Se dibuja la franja
+            sunsetPipeline.drawCall(gpu_rubi) # Se dibuja rubi
         # Si no hay un efecto activado
         # Se usa el shaderProgram normal
         else:
@@ -537,6 +594,8 @@ if __name__ == "__main__":
             simplePipeline.drawCall(gpu_island) # Se dibuja la isla
             simplePipeline.drawCall(gpu_volcano) # Se dibuja el volcan
             simplePipeline.drawCall(gpu_triangulo) # Se dibuja el triangulo
+            simplePipeline.drawCall(gpu_franja) # Se dibuja ela franja
+            simplePipeline.drawCall(gpu_rubi) # Se dibuja ela rubi
 
         # Once the render is done, buffers are swapped, showing only the complete scene.
         glfw.swap_buffers(window)
@@ -547,5 +606,7 @@ if __name__ == "__main__":
     gpu_island.clear()
     gpu_volcano.clear()
     gpu_triangulo.clear()
+    gpu_franja.clear()
+    gpu_rubi.clear()
 
     glfw.terminate()
