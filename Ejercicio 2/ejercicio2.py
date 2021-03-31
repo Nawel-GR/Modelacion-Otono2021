@@ -128,7 +128,7 @@ class SimpleShaderProgram:
 class GreenShaderProgram:
     """
     Clase para guardar el los shaders compilados
-    Contiene los shaders para el efecto de solamente dibujar los pixeles con más componente verde
+    Contiene los shaders para el efecto
     """
 
     def __init__(self):
@@ -154,23 +154,12 @@ class GreenShaderProgram:
 
             out vec4 outColor;
             void main()
-            {
-                // Se guarda el promedio para tener un color gris del fragmento
-                float grayColor = (newColor.r + newColor.g + newColor.b) / 3.0;
-
-                // Se crea una nuevo vector para contener el color final
-                vec3 finalColor = newColor;
-
-                // Si la componente verde es menos que una de las otras dos componentes
-                // Se descarta, asignando el color gris al color final
-                if (newColor.g < newColor.r +0.1|| newColor.g < newColor.b +0.1)
-                {
-                    finalColor = vec3(grayColor, grayColor, grayColor);
-                }
-
-                // Si no cumple la condicion, el color final se manetiene igual al color original
-                // Se asigna el color final al fragmento
-                outColor = vec4(finalColor, 1.0f);
+            {   
+                float newRed = newColor.r - 0.6; // Se modifica la componente roja
+                float newGreen = newColor.g - 0.6; // Se modifica la componente verde
+                float newBlue = newColor.b - 0.5; // Se modifica la componente azul
+                vec3 finalColor = vec3(newRed, newGreen, newBlue); // Se crea el nuevo vector rgb
+                outColor = vec4(finalColor, 1.0f); // Se asigna el color final
             }
             """
 
