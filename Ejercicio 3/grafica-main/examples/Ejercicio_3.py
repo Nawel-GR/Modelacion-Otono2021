@@ -10,6 +10,7 @@ import os.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import grafica.gpu_shape as gs
 import grafica.transformations as tr
+from grafica.gpu_shape import GPUShape
 
 
 # We will use 32 bits data, so an integer has 4 bytes
@@ -63,23 +64,35 @@ def drawCall(shaderProgram, shape):
     glDrawElements(GL_TRIANGLES, shape.size, GL_UNSIGNED_INT, None)
 
 
-def createTriangle():
+def createCircle(N):
 
     # Here the new shape will be stored
-    gpuShape = gs.GPUShape()
+    gpuShape = GPUShape()
 
-    # Defining the location and colors of each vertex  of the shape
-    vertexData = np.array(
-    #     positions       colors
-        [-0.7, -0.7, 0.0, 1.0, 0.0, 0.0,
-          0.7, -0.7, 0.0, 0.0, 1.0, 0.0,
-          0.0,  0.7, 0.0, 0.0, 0.0, 1.0],
-          dtype = np.float32) # It is important to use 32 bits data
+    # First vertex at the center, white color
+    vertices = [0, 0, 0, 1.0, 1.0, 1.0]
+    indices = []
 
-    # Defining connections among vertices
-    # We have a triangle every 3 indices specified
-    indices = np.array(
-        [0, 1, 2], dtype= np.uint32)
+    dtheta = 2 * np.pi / N
+
+    for i in range(N):
+        theta = i * dtheta
+
+        vertices += [
+            # vertex coordinates
+            0.5 * np.cos(theta), 0.5 * np.sin(theta), 0,
+
+            # color generates varying between 0 and 1
+                  np.sin(theta),       np.cos(theta), 0]
+
+        # A triangle is created using the center, this and the next vertex
+        indices += [0, i, i+1]
+
+    # The final triangle connects back to the second vertex
+    indices += [0, N, 1]
+
+    vertices = np.array(vertices, dtype =np.float32)
+    indices = np.array(indices, dtype= np.uint32)
         
     gpuShape.size = len(indices)
 
@@ -89,13 +102,12 @@ def createTriangle():
     gpuShape.ebo = glGenBuffers(1)
 
     glBindBuffer(GL_ARRAY_BUFFER, gpuShape.vbo)
-    glBufferData(GL_ARRAY_BUFFER, len(vertexData) * SIZE_IN_BYTES, vertexData, GL_STATIC_DRAW)
+    glBufferData(GL_ARRAY_BUFFER, len(vertices) * SIZE_IN_BYTES, vertices, GL_STATIC_DRAW)
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gpuShape.ebo)
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, len(indices) * SIZE_IN_BYTES, indices, GL_STATIC_DRAW)
 
     return gpuShape
-
 
 def createQuad():
 
@@ -198,7 +210,7 @@ if __name__ == "__main__":
     glClearColor(0.15, 0.15, 0.15, 1.0)
 
     # Creating shapes on GPU memory
-    gpuTriangle = createTriangle()
+    gpuCircle = createCircle(30)
     gpuQuad = createQuad()
 
     while not glfw.window_should_close(window):
@@ -217,53 +229,53 @@ if __name__ == "__main__":
         # Using the time as the theta parameter
         theta = glfw.get_time()
 
-        # Triangle
-        triangleTransform = tr.matmul([
+        # Circle
+        circleTransform = tr.matmul([
             tr.translate(0.5, 0.5, 0),
             tr.rotationZ(2 * theta),
             tr.uniformScale(0.5)
         ])
 
         # updating the transform attribute
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "transform"), 1, GL_TRUE, triangleTransform)
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "transform"), 1, GL_TRUE, circleTransform)
 
         # drawing function
-        drawCall(shaderProgram, gpuTriangle)
+        drawCall(shaderProgram, gpuCircle)
 
-        # Another instance of the triangle
-        triangleTransform2 = tr.matmul([
+        # Second instance of the circle
+        circleTransform2 = tr.matmul([
             tr.translate(-0.5, 0.5, 0),
             tr.scale(
                 0.5 + 0.2 * np.cos(1.5 * theta),
                 0.5 + 0.2 * np.sin(2 * theta),
                 0)
         ])
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "transform"), 1, GL_TRUE, triangleTransform2)
-        drawCall(shaderProgram, gpuTriangle)
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "transform"), 1, GL_TRUE, circleTransform2)
+        drawCall(shaderProgram, gpuCircle)
 
-        # Quad
-        quadTransform = tr.matmul([
+        #Third instance of the circle
+        circleTransform3 = tr.matmul([
             tr.translate(-0.5, -0.5, 0),
             tr.rotationZ(-theta),
             tr.uniformScale(0.7)
         ])
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "transform"), 1, GL_TRUE, quadTransform)
-        drawCall(shaderProgram, gpuQuad)
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "transform"), 1, GL_TRUE, circleTransform3)
+        drawCall(shaderProgram, gpuCircle)
 
-        # Another instance of the Quad
-        quadTransform2 = tr.matmul([
+        #Fourth
+        circleTransform4 = tr.matmul([
             tr.translate(0.5, -0.5, 0),
             tr.shearing(0.3 * np.cos(theta), 0, 0, 0, 0, 0),
             tr.uniformScale(0.7)
         ])
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "transform"), 1, GL_TRUE, quadTransform2)
-        drawCall(shaderProgram, gpuQuad)
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "transform"), 1, GL_TRUE, circleTransform4)
+        drawCall(shaderProgram, gpuCircle)
 
         # Once the drawing is rendered, buffers are swap so an uncomplete drawing is never seen.
         glfw.swap_buffers(window)
 
     # freeing GPU memory
-    gpuTriangle.clear()
+    gpuCircle.clear()
     gpuQuad.clear()
     
     glfw.terminate()
