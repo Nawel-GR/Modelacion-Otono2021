@@ -10,7 +10,7 @@ import os.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import grafica.gpu_shape as gs
 import grafica.transformations as tr
-import math
+from math import *
 from grafica.gpu_shape import GPUShape
 
 
@@ -174,7 +174,7 @@ if __name__ == "__main__":
     glClearColor(0.15, 0.15, 0.15, 1.0)
 
     # Creating shapes on GPU memory
-    gpuCircle = createCircle(10)
+    gpuCircle = createCircle(100)
 
     while not glfw.window_should_close(window):
         # Using GLFW to check for input events
@@ -190,12 +190,13 @@ if __name__ == "__main__":
         glClear(GL_COLOR_BUFFER_BIT)
 
         # Using the time as the theta parameter
-        theta = glfw.get_time()
+        theta = glfw.get_time()/2
+        alpha = (glfw.get_time())
 
-        # Sol // centro
+        # Sol 
         circleTransform = tr.matmul([
             tr.translate(0.0, 0.0, 0.0),
-            tr.uniformScale(0.70)
+            tr.uniformScale(0.40)
         ])
 
         # updating the transform attribute
@@ -204,19 +205,19 @@ if __name__ == "__main__":
         # drawing function
         drawCall(shaderProgram, gpuCircle)
 
-        # Tierra //arriba a la izq
+        # Tierra 
         circleTransform2 = tr.matmul([
-            tr.translate(math.cos(theta)*3/4, math.sin(theta)*3/4, 0),
+            tr.translate(cos(theta)*3/4, sin(theta)*3/4, 0),
             tr.rotationZ(-theta),
             tr.uniformScale(0.20)
         ])
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "transform"), 1, GL_TRUE, circleTransform2)
         drawCall(shaderProgram, gpuCircle)
 
-        #Third instance of the circle
+        #Luna
         circleTransform3 = tr.matmul([
-            tr.translate(math.cos(theta), math.sin(theta), 0),
-            tr.rotationZ(-theta),
+            tr.translate(cos(theta)*3/4+cos(alpha)*1/4, sin(theta)*3/4+sin(alpha)*1/4, 0),
+            tr.rotationZ(theta),
             tr.uniformScale(0.1)
         ])
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "transform"), 1, GL_TRUE, circleTransform3)
