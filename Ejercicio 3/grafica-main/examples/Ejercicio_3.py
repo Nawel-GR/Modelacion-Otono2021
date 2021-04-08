@@ -10,7 +10,6 @@ import os.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import grafica.gpu_shape as gs
 import grafica.transformations as tr
-from math import *
 from grafica.gpu_shape import GPUShape
 
 
@@ -45,8 +44,7 @@ def on_key(window, key, scancode, action, mods):
         print('Unknown key')
 
 
-def drawCall(shaderProgram, shape):
-
+def drawCall(shaderProgram, shape, mode=GL_LINES):
     # Binding the proper buffers
     glBindVertexArray(shape.vao)
     glBindBuffer(GL_ARRAY_BUFFER, shape.vbo)
@@ -65,13 +63,13 @@ def drawCall(shaderProgram, shape):
     glDrawElements(GL_TRIANGLES, shape.size, GL_UNSIGNED_INT, None)
 
 
-def createCircle(N):
+def createEarth(N):
 
     # Here the new shape will be stored
     gpuShape = GPUShape()
 
     # First vertex at the center, white color
-    vertices = [0, 0, 0, 1.0, 1.0, 0.0]
+    vertices = [0, 0, 0, 0.4, 0.4, 1.0]
     indices = []
 
     dtheta = 2 * np.pi / N
@@ -84,7 +82,7 @@ def createCircle(N):
             0.5 * np.cos(theta), 0.5 * np.sin(theta), 0,
 
             # color generates varying between 0 and 1
-                  0,       0, 0]
+                  0.0,       0.0, 0.2]
 
         # A triangle is created using the center, this and the next vertex
         indices += [0, i, i+1]
@@ -110,6 +108,191 @@ def createCircle(N):
 
     return gpuShape
 
+def createSun(N):
+
+    # Here the new shape will be stored
+    gpuShape = GPUShape()
+
+    # First vertex at the center, white color
+    vertices = [0, 0, 0, 1.0, 1.0, 0.0]
+    indices = []
+
+    dtheta = 2 * np.pi / N
+
+    for i in range(N):
+        theta = i * dtheta
+
+        vertices += [
+            # vertex coordinates
+            0.5 * np.cos(theta), 0.5 * np.sin(theta), 0,
+
+            # color generates varying between 0 and 1
+                  0.15,       0.15, 0]
+
+        # A triangle is created using the center, this and the next vertex
+        indices += [0, i, i+1]
+
+    # The final triangle connects back to the second vertex
+    indices += [0, N, 1]
+
+    vertices = np.array(vertices, dtype =np.float32)
+    indices = np.array(indices, dtype= np.uint32)
+        
+    gpuShape.size = len(indices)
+
+    # VAO, VBO and EBO and  for the shape
+    gpuShape.vao = glGenVertexArrays(1)
+    gpuShape.vbo = glGenBuffers(1)
+    gpuShape.ebo = glGenBuffers(1)
+
+    glBindBuffer(GL_ARRAY_BUFFER, gpuShape.vbo)
+    glBufferData(GL_ARRAY_BUFFER, len(vertices) * SIZE_IN_BYTES, vertices, GL_STATIC_DRAW)
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gpuShape.ebo)
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, len(indices) * SIZE_IN_BYTES, indices, GL_STATIC_DRAW)
+
+    return gpuShape
+
+def createMoon(N):
+
+    # Here the new shape will be stored
+    gpuShape = GPUShape()
+
+    # First vertex at the center, white color
+    vertices = [0, 0, 0, 1.0, 1.0, 1.0]
+    indices = []
+
+    dtheta = 2 * np.pi / N
+
+    for i in range(N):
+        theta = i * dtheta
+
+        vertices += [
+            # vertex coordinates
+            0.5 * np.cos(theta), 0.5 * np.sin(theta), 0,
+
+            # color generates varying between 0 and 1
+                  0.15,       0.15, 0.15]
+
+        # A triangle is created using the center, this and the next vertex
+        indices += [0, i, i+1]
+
+    # The final triangle connects back to the second vertex
+    indices += [0, N, 1]
+
+    vertices = np.array(vertices, dtype =np.float32)
+    indices = np.array(indices, dtype= np.uint32)
+        
+    gpuShape.size = len(indices)
+
+    # VAO, VBO and EBO and  for the shape
+    gpuShape.vao = glGenVertexArrays(1)
+    gpuShape.vbo = glGenBuffers(1)
+    gpuShape.ebo = glGenBuffers(1)
+
+    glBindBuffer(GL_ARRAY_BUFFER, gpuShape.vbo)
+    glBufferData(GL_ARRAY_BUFFER, len(vertices) * SIZE_IN_BYTES, vertices, GL_STATIC_DRAW)
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gpuShape.ebo)
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, len(indices) * SIZE_IN_BYTES, indices, GL_STATIC_DRAW)
+
+    return gpuShape
+
+def createLine(N):
+
+    # Here the new shape will be stored
+    gpuShape = GPUShape()
+
+    # First vertex at the center, white color
+    vertices = [0.5* np.cos(0), 0.5 * np.sin(0), 0, 1.0, 1.0, 1.0]
+    indices = []
+    dtheta = 2 * np.pi / N
+    
+
+    i=0 
+    while i <= N:
+        theta = i * dtheta
+
+        vertices += [
+            # vertex coordinates
+            0.5 * np.cos(theta), 0.5 * np.sin(theta), 0,
+
+            # color generates varying between 0 and 1
+                  1, 1, 1]
+
+        # A triangle is created using the center, this and the next vertex
+        indices += [i, i+1]
+        i+=1
+
+    # The final triangle connects back to the second vertex
+    indices += [N, 0]
+    
+
+    vertices = np.array(vertices, dtype =np.float32)
+    indices = np.array(indices, dtype= np.uint32)
+        
+    gpuShape.size = len(indices)
+
+    # VAO, VBO and EBO and  for the shape
+    gpuShape.vao = glGenVertexArrays(1)
+    gpuShape.vbo = glGenBuffers(1)
+    gpuShape.ebo = glGenBuffers(1)
+
+    glBindBuffer(GL_ARRAY_BUFFER, gpuShape.vbo)
+    glBufferData(GL_ARRAY_BUFFER, len(vertices) * SIZE_IN_BYTES, vertices, GL_STATIC_DRAW)
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gpuShape.ebo)
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, len(indices) * SIZE_IN_BYTES, indices, GL_STATIC_DRAW)
+
+    return gpuShape
+
+def createCirc(N):
+
+    # Here the new shape will be stored
+    gpuShape = GPUShape()
+
+    # First vertex at the center, white color
+    vertices = [0.5* np.cos(0), 0.5 * np.sin(0), 0, 1.0, 1.0, 1.0]
+    indices = []
+    dtheta = 2 * np.pi / N
+    
+
+    i=0 
+    while i <= N:
+        theta = i * dtheta
+
+        vertices += [
+            # vertex coordinates
+            0.5 * np.cos(theta), 0.5 * np.sin(theta), 0,
+
+            # color generates varying between 0 and 1
+                  1, 1, 1]
+
+        # A triangle is created using the center, this and the next vertex
+        indices += [i, i+1]
+        i+=2
+
+    # The final triangle connects back to the second vertex
+    indices += [N, 0]
+    
+
+    vertices = np.array(vertices, dtype =np.float32)
+    indices = np.array(indices, dtype= np.uint32)
+        
+    gpuShape.size = len(indices)
+
+    # VAO, VBO and EBO and  for the shape
+    gpuShape.vao = glGenVertexArrays(1)
+    gpuShape.vbo = glGenBuffers(1)
+    gpuShape.ebo = glGenBuffers(1)
+
+    glBindBuffer(GL_ARRAY_BUFFER, gpuShape.vbo)
+    glBufferData(GL_ARRAY_BUFFER, len(vertices) * SIZE_IN_BYTES, vertices, GL_STATIC_DRAW)
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gpuShape.ebo)
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, len(indices) * SIZE_IN_BYTES, indices, GL_STATIC_DRAW)
+
+    return gpuShape
 
 
 
@@ -171,10 +354,14 @@ if __name__ == "__main__":
     glUseProgram(shaderProgram)
 
     # Setting up the clear screen color
-    glClearColor(0.15, 0.15, 0.15, 1.0)
+    glClearColor(0.1, 0.1, 0.1, 1.0)
 
     # Creating shapes on GPU memory
-    gpuCircle = createCircle(100)
+    gpuEarth = createEarth(100)
+    gpuSun = createSun(100)
+    gpuMoon = createMoon(100)
+    gpuLine = createLine(300)
+    gpuCirc = createCirc(100)
 
     while not glfw.window_should_close(window):
         # Using GLFW to check for input events
@@ -193,41 +380,109 @@ if __name__ == "__main__":
         theta = glfw.get_time()/2
         alpha = (glfw.get_time())
 
+        #Line
+        lineTransform = tr.matmul([
+            tr.uniformScale(1.5)
+        ])
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "transform"), 1, GL_TRUE, lineTransform)
+        if (controller.fillPolygon):
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+        else:
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+        drawCall(shaderProgram, gpuLine, mode=GL_LINES)
+        if (controller.fillPolygon):
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+        else:
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+
+        #Line
+        lineTransform2 = tr.matmul([
+            tr.translate(np.cos(theta)*3/4, np.sin(theta)*3/4, 0),
+            tr.uniformScale(0.5)
+        ])
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "transform"), 1, GL_TRUE, lineTransform2)
+        if (controller.fillPolygon):
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+        else:
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+        drawCall(shaderProgram, gpuLine, mode=GL_LINES)
+        if (controller.fillPolygon):
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+        else:
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+        
         # Sol 
-        circleTransform = tr.matmul([
+        sunTransform = tr.matmul([
             tr.translate(0.0, 0.0, 0.0),
             tr.uniformScale(0.40)
         ])
 
         # updating the transform attribute
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "transform"), 1, GL_TRUE, circleTransform)
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "transform"), 1, GL_TRUE, sunTransform)
 
         # drawing function
-        drawCall(shaderProgram, gpuCircle)
+        drawCall(shaderProgram, gpuSun)
 
         # Tierra 
-        circleTransform2 = tr.matmul([
-            tr.translate(cos(theta)*3/4, sin(theta)*3/4, 0),
-            tr.rotationZ(-theta),
+        earthTransform = tr.matmul([
+            tr.translate(np.cos(theta)*3/4, np.sin(theta)*3/4, 0),
+            tr.rotationZ(theta),
             tr.uniformScale(0.20)
         ])
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "transform"), 1, GL_TRUE, circleTransform2)
-        drawCall(shaderProgram, gpuCircle)
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "transform"), 1, GL_TRUE, earthTransform)
+        drawCall(shaderProgram, gpuEarth)
 
         #Luna
-        circleTransform3 = tr.matmul([
-            tr.translate(cos(theta)*3/4+cos(alpha)*1/4, sin(theta)*3/4+sin(alpha)*1/4, 0),
+        moonTransform = tr.matmul([
+            tr.translate(np.cos(theta)*3/4+np.cos(alpha)*1/4, np.sin(theta)*3/4+np.sin(alpha)*1/4, 0),
             tr.rotationZ(theta),
             tr.uniformScale(0.1)
         ])
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "transform"), 1, GL_TRUE, circleTransform3)
-        drawCall(shaderProgram, gpuCircle)
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "transform"), 1, GL_TRUE, moonTransform)
+        drawCall(shaderProgram, gpuMoon)
+
+
+        #Circ
+        circTransform = tr.matmul([
+            tr.uniformScale(0.4)
+        ])
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "transform"), 1, GL_TRUE, circTransform)
+        if (controller.fillPolygon):
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+        else:
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+        drawCall(shaderProgram, gpuLine, mode=GL_LINES)
+        if (controller.fillPolygon):
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+        else:
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+
+
+        #Circ
+        circTransform2 = tr.matmul([
+            tr.translate(np.cos(theta)*3/4, np.sin(theta)*3/4, 0),
+            tr.uniformScale(0.2)
+        ])
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "transform"), 1, GL_TRUE, circTransform2)
+        if (controller.fillPolygon):
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+        else:
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+        drawCall(shaderProgram, gpuLine, mode=GL_LINES)
+        if (controller.fillPolygon):
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+        else:
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
 
 
         glfw.swap_buffers(window)
 
     # freeing GPU memory
-    gpuCircle.clear()
+    gpuSun.clear()
+    gpuEarth.clear()
+    gpuMoon.clear()
+    gpuLine.clear()
+    gpuCirc.clear()
 
     
     glfw.terminate()
