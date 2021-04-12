@@ -388,12 +388,9 @@ if __name__ == "__main__":
         if (controller.fillPolygon):
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
         else:
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
-        drawCall(shaderProgram, gpuLine, mode=GL_LINES)
-        if (controller.fillPolygon):
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
-        else:
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+        drawCall(shaderProgram, gpuLine, mode=GL_LINES)
+        
 
         #Line
         lineTransform2 = tr.matmul([
@@ -401,10 +398,7 @@ if __name__ == "__main__":
             tr.uniformScale(0.5)
         ])
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "transform"), 1, GL_TRUE, lineTransform2)
-        if (controller.fillPolygon):
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
-        else:
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+        
         drawCall(shaderProgram, gpuLine, mode=GL_LINES)
         if (controller.fillPolygon):
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
@@ -450,12 +444,9 @@ if __name__ == "__main__":
         if (controller.fillPolygon):
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
         else:
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
-        drawCall(shaderProgram, gpuLine, mode=GL_LINES)
-        if (controller.fillPolygon):
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
-        else:
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+        drawCall(shaderProgram, gpuLine, mode=GL_LINES)
+        
 
 
         #Circ
@@ -464,10 +455,7 @@ if __name__ == "__main__":
             tr.uniformScale(0.2)
         ])
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "transform"), 1, GL_TRUE, circTransform2)
-        if (controller.fillPolygon):
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
-        else:
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+        
         drawCall(shaderProgram, gpuLine, mode=GL_LINES)
         if (controller.fillPolygon):
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
