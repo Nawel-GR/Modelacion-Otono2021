@@ -99,40 +99,42 @@ if __name__ == "__main__":
 
     # Creating shapes on GPU memory
 
-    # Creamos una lista para guardar todas las gpu shapes necesarias
-    gpus = []
+    
 
 # Definimos donde se encuentra la textura del pasto
     thisFilePath = os.path.abspath(__file__)
     thisFolderPath = os.path.dirname(thisFilePath)
     spritesDirectory = os.path.join(thisFolderPath, "Sprites")
     spritePath = os.path.join(spritesDirectory, "pasto.png")
-    texture = es.textureSimpleSetup(
+    
+    texturePasto = es.textureSimpleSetup(
     spritePath, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST)
 
+    PastoTransform = np.matmul(tr.translate(0, -0.8, 0), tr.scale(2, 0.2, 1))
+
+    # Creamos una lista para guardar todas las gpu shapes necesarias
+    gpus = []
 # Definimos donde se encuentra la textura del caballero
     thisFilePath = os.path.abspath(__file__)
     thisFolderPath = os.path.dirname(thisFilePath)
     spritesDirectory = os.path.join(thisFolderPath, "Sprites")
     spritePath = os.path.join(spritesDirectory, "sprites.png")
-    texture = es.textureSimpleSetup(
+    
+    textureKnight = es.textureSimpleSetup(
     spritePath, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST)
 
-
-
-# Creamos una gpushape para el pasto
+# Creamos una gpushape para el caballero
     for i in range(10):
         gpuPasto = GPUShape().initBuffers()
         pipeline.setupVAO(gpuPasto)
 
         shapePasto = bs.createTextureQuad(i/10,(i + 1)/10,0,1)
 
-        gpuPasto.texture = texture
+        gpuPasto.texture = texturePasto
 
         gpuPasto.fillBuffers(shapePasto.vertices, shapePasto.indices, GL_STATIC_DRAW)
 
         gpus.append(gpuPasto)
-
 
 # Creamos una gpushape para el caballero
     for i in range(10):
@@ -141,7 +143,7 @@ if __name__ == "__main__":
 
         shapeKnight = bs.createTextureQuad(i/10,(i + 1)/10,0,1)
 
-        gpuKnight.texture = texture
+        gpuKnight.texture = textureKnight
 
         gpuKnight.fillBuffers(shapeKnight.vertices, shapeKnight.indices, GL_STATIC_DRAW)
 
@@ -174,6 +176,10 @@ if __name__ == "__main__":
 
         # Dibujamos la figura
         pipeline.drawCall(gpus[controller.actual_sprite])
+
+        #Dibujamos el Pasto
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "transform"), 1, GL_TRUE, PastoTransform)
+        pipeline.drawCall(gpuPasto)
         
 ##############################################################################################################################
 
