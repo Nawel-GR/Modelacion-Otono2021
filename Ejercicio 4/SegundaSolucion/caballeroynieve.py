@@ -37,6 +37,7 @@ def on_key(window, key, scancode, action, mods):
     
     global controller
 
+
     if key == glfw.KEY_SPACE:
         controller.fillPolygon = not controller.fillPolygon
 
@@ -123,11 +124,11 @@ if __name__ == "__main__":
         gpusKnight.append(gpuKnight)
 
     #Shape pasto
-    for i in range(10):
+    for i in range(50):
         gpuPasto = GPUShape().initBuffers()
         pipeline.setupVAO(gpuPasto)
 
-        shapePasto = bs.createTextureQuad(i/10,(i + 1)/10,0,1)
+        shapePasto = bs.createTextureQuad(i/50,(i + 10)/50,0,0.5)
 
         gpuPasto.texture = texturePasto
 
@@ -148,20 +149,25 @@ if __name__ == "__main__":
         # Clearing the screen in both, color and depth
         glClear(GL_COLOR_BUFFER_BIT)
 
+        #cuento el tiempo
+        contador = glfw.get_time()
+
 
         # Le entregamos al vertex shader la matriz de transformación del caballero
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "transform"), 1, GL_TRUE, tr.matmul([
             tr.uniformScale(0.5),
-            tr.translate(0, -0.5, 0)
+            tr.translate(0, -0.47, 0)
         ]))
 
         pipeline.drawCall(gpusKnight[controller.actual_spriteKnight])
 
         # Le entregamos al vertex shader la matriz de transformación del pasto
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "transform"), 1, GL_TRUE, tr.matmul([
-            tr.translate(controller.x, -0.8, 0),
-            tr.uniformScale(0.5)
+            tr.translate(controller.x, -2.2, 0),
+            tr.uniformScale(3.5)
         ]))
+
+        
 
 
         pipeline.drawCall(gpusPasto[controller.actual_spritePasto])
