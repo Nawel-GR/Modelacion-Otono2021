@@ -1,4 +1,4 @@
-"""Tarea 1A BeauchefVille"""
+""" Beauchef Ville """
 
 import glfw
 import OpenGL.GL.shaders
@@ -20,6 +20,7 @@ class Controller:
         self.is_s_pressed = False
         self.is_a_pressed = False
         self.is_d_pressed = False
+
 
 
 #Global COntroller
@@ -57,10 +58,7 @@ def on_key(window, key, scancode, action, mods):
     if key == glfw.KEY_SPACE and action ==glfw.PRESS:
         controller.fillPolygon = not controller.fillPolygon
 
-    # Caso en que se cierra la ventana
-    elif key == glfw.KEY_ESCAPE and action ==glfw.PRESS:
-        glfw.set_window_should_close(window, True)
-
+    
 
 
 if __name__ == "__main__":
@@ -68,8 +66,8 @@ if __name__ == "__main__":
     if not glfw.init():
         glfw.set_window_should_close(window, True)
 
-    width = 900
-    height = 900
+    width = 700
+    height = 700
     title = "BeauchefVille"
     window = glfw.create_window(width, height, title, None, None)
 
@@ -80,10 +78,8 @@ if __name__ == "__main__":
     glfw.make_context_current(window)
     glfw.set_key_callback(window, on_key)
 
-    # Pipeline interpolacion
+    # Pipeline interpolacion y textura
     pipeline = es.SimpleTransformShaderProgram()
-
-    # Pipeline texturas
     tex_pipeline = es.SimpleTextureTransformShaderProgram()
 
     # Color base
@@ -93,50 +89,42 @@ if __name__ == "__main__":
     glEnable(GL_BLEND)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
+    #Mainscene y tex_scene
     mainScene = createScene(pipeline)
-
-
-
-# Shape con textura de la carga
-    garbage = createTextureGPUShape(bs.createTextureQuad(1,1), tex_pipeline, "sprites/bag.png")
-
-    # Se crean dos nodos de carga
-    garbage1Node = sg.SceneGraphNode("garbage1")
-    #garbage1Node.transform = tr.translate(0.2, 0.55, 0.1)
-    garbage1Node.childs = [garbage]
-
-
-    # Se crean el grafo de escena con textura y se agregan las cargas
     tex_scene = sg.SceneGraphNode("textureScene")
-    tex_scene.childs = [garbage1Node]
 
-    # Se crean los modelos de la carga, se indican su nodo y se indica lo posicion inicial
+    #Tienda
+    store = createTextureGPUShape(bs.createTextureQuad(1,1), tex_pipeline, "sprites/Supermarket.png")
     
-    carga1 = Carga(0.2, 0.55, 0.1)
-    carga1.set_model(garbage1Node)
-    carga1.update()
+    storeNode = sg.SceneGraphNode("store")
+    storeNode.childs = [store]
+    tex_scene.childs += [storeNode]
 
-    # Lista con todas las cargas
-    cargas = [carga1]
-#
+    store1 = Market(-0.8,0.7,0.4,0.5)
+    store1.set_model(storeNode)
+    store1.update()
 
+    #Se crea la lista que irá guardando los personajes
+    body_list=[]
+
+    #Saitama (player)
     saitamabase = createTextureGPUShape(bs.createTextureQuad(1,1), tex_pipeline, "sprites/Saitama.png")
+    
     saitamaNode = sg.SceneGraphNode("saitama")
     saitamaNode.childs = [saitamabase]
-
     tex_scene.childs += [saitamaNode]
-    
 
-    player = Player(0.3)
-    # Se indican las referencias del nodo y el controller al modelo
+    player = Player(0.2)
     player.set_model(saitamaNode)
     player.set_controller(controller)
 
+   
     perfMonitor = pm.PerformanceMonitor(glfw.get_time(), 0.5)
-    # tiempo
+    # glfw will swap buffers as soon as possible
     glfw.swap_interval(0)
-    t0 = glfw.get_time()    
-
+    t0 = glfw.get_time()
+    dt=0
+    dt1=0
 
     while not glfw.window_should_close(window):
         # Variables del tiempo
@@ -144,41 +132,59 @@ if __name__ == "__main__":
         delta = t1 - t0
         t0 = t1
 
+        if t1-dt > 8:
+            dt=t1
+            for i in range(3):
+                NewBoros=Body()
+                NewBoros.boroizacion()
+                body_list.append(NewBoros)
+
+        if t1-dt1 >6:
+            dt1=t1
+            for i in range(3):
+                body_list.append(Body())
+
         # Measuring performance
         perfMonitor.update(glfw.get_time())
         glfw.set_window_title(window, title + str(perfMonitor))
         # Using GLFW to check for input events
         glfw.poll_events()
 
-        # Filling or not the shapes depending on the controller state
+        # Filling or not the shapes depending on the controller statea
         if (controller.fillPolygon):
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+            for i in body_list:
+                i.spacechange2()
         else:
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+            for i in body_list:
+                i.spacechange1()
+                
 
         # Clearing the screen
         glClear(GL_COLOR_BUFFER_BIT)
 
-        # Detectar colisiones
-        player.collision(cargas)
-
         # Actualizacion de posiciones
         player.update(delta)
-
 
         # Grafo de escena principal
         glUseProgram(pipeline.shaderProgram)
         sg.drawSceneGraphNode(mainScene, pipeline, "transform")
 
-        # Grafo de escena con texturas
+        # texture escene
         glUseProgram(tex_pipeline.shaderProgram)
         sg.drawSceneGraphNode(tex_scene, tex_pipeline, "transform")
 
-        # Once the drawing is rendered, buffers are swap so an uncomplete drawing is never seen.
+        #Interacciones
+        store1.collision(player)
+        player.collision(body_list)
+
+        for i in body_list:
+            i.is_infected(0.0001)
+            i.movement(t1)
+            i.collision(body_list)
+            i.draw(tex_pipeline)
+
         glfw.swap_buffers(window)
 
-
-    # Free GPU
     mainScene.clear()
     tex_scene.clear()
     
