@@ -13,12 +13,14 @@ import random as rd
 
 class Player():
     def __init__(self, size):
-        self.pos = [0,-0.65] 
-        self.vel = [1,1] 
+        self.posx = 0.55
+        self.posy = -0.85
+        self.velx = 1
+        self.vely = 1 
         self.model = None 
         self.controller = None 
         self.size = size 
-        self.radio = 0.1 
+
 
     def set_model(self, new_model):
         self.model = new_model
@@ -28,31 +30,35 @@ class Player():
 
     def update(self, delta):
 
-        if self.controller.is_d_pressed and self.pos[0] < 0.6:
-            self.pos[0] += self.vel[0] * delta
+        if self.controller.is_d_pressed and self.posx < 0.55:
+            self.posx += self.velx * delta
 
-        if self.controller.is_a_pressed and self.pos[0] > -0.6:
-            self.pos[0] -= self.vel[0] * delta
+        if self.controller.is_a_pressed and self.posx > -0.55:
+            self.posx -= self.velx * delta
 
-        if self.controller.is_w_pressed:
-            self.pos[1] += self.vel[1] * delta
+        if self.controller.is_w_pressed and self.posy < 0.9:
+            self.posy += self.vely * delta
 
-        if self.controller.is_s_pressed:
-            self.pos[1] -= self.vel[1] * delta
+        if self.controller.is_s_pressed and self.posy > -0.9:
+            self.posy -= self.vely * delta
 
-        self.model.transform = tr.matmul([tr.translate(self.pos[0], self.pos[1], 0), tr.scale(self.size, self.size, 1)])
+        self.model.transform = tr.matmul([tr.translate(self.posx, self.posy, 0), tr.scale(self.size, self.size, 1)])
 
     def collision(self, objeto):
-        
         for i in objeto:
-            if (self.radio + i.radio)**2 > ((self.pos[0] - i.pos[0])**2 + (self.pos[1] - i.pos[1])**2):
-                print("CHOQUE")
-                return
+            if (0.01) > ((self.posx - i.posx)**2 + (self.posy - i.posy)**2) and i.model != i.zombie:
+                if  i.infected:
+                    if rd.choice([1,2,3,4]) == 1: #25% de probabilidad de contagiarse y perder
+                        print("PERDISTE") 
+
+            if (0.01) > ((self.posx - i.posx)**2 + (self.posy - i.posy)**2) and i.model == i.zombie:
+                print("PERDISTE")
+
 
 class Market():
     def __init__(self, posx, posy, size_x,size_y):
-        self.pos = [posx, posy]
-        self.radio = 0.1
+        self.posx = posx
+        self.posy = posy
         self.size_x = size_x
         self.size_y = size_y
         self.model = None
@@ -61,109 +67,101 @@ class Market():
         self.model = new_model
     
     def update(self):
-        self.model.transform = tr.matmul([tr.translate(self.pos[0], self.pos[1], 0), tr.scale(self.size_x, self.size_y, 1),tr.rotationZ(1.570)])
+        self.model.transform = tr.matmul([tr.translate(self.posx, self.posy, 0), tr.scale(self.size_x, self.size_y, 1),tr.rotationZ(1.570)])
 
-class Zombie():
-    def __init__(self, size):
-        zombietex = createTextureGPUShape(bs.createTextureQuad(1,1), es.SimpleTextureTransformShaderProgram(), "sprites/Boros.png")
-
-        self.x = (np.random.randint(-5,5)+0.5)/10.0
-        self.y = 1.1
-        self.radio = 0.05
-        self.size = size
-        self.theta = self.x
-        self.offset = np.random.randint(10)
-        self.vel = rd.uniform(0.0006,0.001)
-        self.pos = [self.x, self.y]
-        
-        zombieNode =sg.SceneGraphNode("zombie")
-        zombieNode.transform =tr.scale(self.size,self.size,1)
-        zombieNode.childs += [zombietex]
-        zombie_tr=sg.SceneGraphNode("zombie_tr")
-        zombie_tr.childs += [zombieNode]
-        self.model = zombie_tr
-    
-    def set_model(self, new_model):
-        self.model = new_model
-
-    def movement(self,time):
-        
-        self.y -= self.vel
-        
-        if (self.x > 0.55):
-            self.x -= 0.01
-
-        elif (self.x < -0.5):
-            self.x += 0.01
-
-        else:
-            self.x = np.sin(time-self.offset)*self.theta
-        self.pos = [self.x, self.y]
-
-    def draw(self,pipeline):
-        x=self.x
-        y=self.y
-        self.model.transform = tr.translate(x,y,0)
-        sg.drawSceneGraphNode(self.model,pipeline,"transform")
-
-    def copy(self, personcopy):
-        self.x = personcopy.x
-        self.y = personcopy.y
-        self.offset = personcopy.offset
-        self.vel = personcopy.vel
-        self.pos = personcopy.pos
-
-
-
-class Person():
-    def __init__(self, size):
-        persontex = createTextureGPUShape(bs.createTextureQuad(1,1), es.SimpleTextureTransformShaderProgram(), "sprites/Genos.png")
-
-        self.x = (np.random.randint(-5,5)+0.5)/10.0
-        self.y = 1.0
-        self.radio = 0.05
-        self.size = size
-        self.theta = self.x
-        self.offset = np.random.randint(10)
-        self.vel = rd.uniform(0.0006,0.001)
-        self.pos = [self.x, self.y]
-        self.flag = False
-
-        personNode =sg.SceneGraphNode("person")
-        personNode.transform =tr.scale(self.size,self.size,1)
-        personNode.childs += [persontex]
-        person1=sg.SceneGraphNode("person1")
-        person1.childs += [personNode]
-        self.model = person1
-    
-    def set_model(self, new_model):
-        self.model = new_model
-
-    def movement(self,time):
-        self.y -= self.vel
-        
-        if (self.x > 0.55):
-            self.x -= 0.01
-
-        elif (self.x < -0.5):
-            self.x += 0.01
-
-        else:
-            self.x = np.sin(time-self.offset)*self.theta
-        self.pos = [self.x, self.y]
-        
-    def draw(self,pipeline):
-        x=self.x
-        y=self.y
-        self.model.transform = tr.translate(x,y,0)
-        sg.drawSceneGraphNode(self.model,pipeline,"transform")
-    
     def collision(self, objeto):
-        for i in objeto:
-            if (self.radio + i.radio)**2 > ((self.pos[0] - i.pos[0])**2 + (self.pos[1] - i.pos[1])**2):
-                print("CONTAGIO!!!!!!!!!")
-                self.flag = True
-                ###queremos crear un zombie
-                return
+        if (0.075) > ((self.posx - objeto.posx)**2 + (self.posy - objeto.posy)**2):
+            print("GANASTE")
 
+
+class Body():
+    def __init__(self):
+        self.size = 0.2
+        #Se importara la imagen de Genos, la cual corresponde a la del humano
+        genos_tex = createTextureGPUShape(bs.createTextureQuad(1,1), es.SimpleTextureTransformShaderProgram(), "sprites/Genos.png")
+        GenosNode =sg.SceneGraphNode("GenosNode")
+        GenosNode.transform =tr.scale(self.size,self.size,1)
+        GenosNode.childs += [genos_tex]
+
+        genos_c=sg.SceneGraphNode("genos_c")
+        genos_c.childs += [GenosNode]
+
+        #Se importara la imagen de Boros, la cual corresponde a la del zombie
+        boros_tex = createTextureGPUShape(bs.createTextureQuad(1,1), es.SimpleTextureTransformShaderProgram(), "sprites/Boros.png") 
+        BorosNode =sg.SceneGraphNode("BorosNode")
+        BorosNode.transform =tr.scale(self.size,self.size,1)
+        BorosNode.childs += [boros_tex]
+        
+        boros_c=sg.SceneGraphNode("boros_c")
+        boros_c.childs += [BorosNode]
+
+        boros2_tex = createTextureGPUShape(bs.createTextureQuad(1,1), es.SimpleTextureTransformShaderProgram(), "sprites/Genos2.png") 
+        Boros2Node =sg.SceneGraphNode("Boros2Node")
+        Boros2Node.transform =tr.scale(self.size,self.size,1)
+        Boros2Node.childs += [boros2_tex]
+        
+        boros2_c=sg.SceneGraphNode("boros2_c")
+        boros2_c.childs += [Boros2Node]
+
+        self.human=genos_c
+        self.zombie=boros_c
+        self.zombie2=boros2_c
+
+        self.alive = True #True si aun es humano
+        self.posx = (np.random.randint(-5,5)+0.5)/10.0
+        self.posy = 1.0
+        self.vely = rd.uniform(0.0009,0.005)
+        self.theta = rd.uniform(-0.001,0.001)
+        self.offset = np.random.randint(0,10)
+        self.infected = False #Ojo que pueden haber boros que no estén infectados, pero el estar vivos es mas importante
+        if rd.choice([-1,1]) == -1: #Me crea aleatoriedad en los npc infectados
+            self.infected = True
+        
+        self.model =self.human
+
+    def boroizacion(self): #es tranformado en Boros
+        self.alive=False
+        self.model = self.zombie
+
+    def is_infected(self,probability):
+        if self.infected: 
+            num = np.random.rand()
+            if num < probability:
+                self.boroizacion()
+        
+    def collision(self, objects):
+        if not self.alive: #Genos se transforma
+            for i in objects:
+                if (0.01) > ((self.posx-i.posx)**2+(self.posy-i.posy)**2) and i.model != i.zombie:
+                    i.boroizacion()
+
+        if self.infected: #Boros se infecta
+            for i in objects:
+                if (0.01) > ((self.posx-i.posx)**2+(self.posy-i.posy)**2) and i.model != i.zombie:
+                    i.infected = True
+        
+    def movement(self,time):
+        self.posy-=self.vely
+        if not self.alive:
+            n=np.cos(time-self.offset)*self.theta
+            if not (self.posx+n>0.5 or self.posx+n<-0.5):
+                self.posx+=n    
+        else:
+            n=np.sin(time-self.offset)*self.theta
+            if not (self.posx+n>0.5 or self.posx+n<-0.5):
+                self.posx+=n  
+
+    def spacechange1(self):
+        if self.infected:    
+            self.model = self.zombie2
+            
+
+    def spacechange2(self):
+        if self.infected:    
+            self.model = self.human 
     
+        
+
+    def draw(self,pipeline):
+        self.model.transform = tr.translate(self.posx,self.posy,0)
+        sg.drawSceneGraphNode(self.model,pipeline,"transform")
