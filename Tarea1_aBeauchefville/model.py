@@ -12,14 +12,40 @@ from shapes import *
 import random as rd
 
 class Player():
+    
     def __init__(self, size):
+        self.size = size 
+        #Imagen de saitama
+        saitama_tex = createTextureGPUShape(bs.createTextureQuad(1,1), es.SimpleTextureTransformShaderProgram(), "sprites/Saitama.png")
+    
+        saitamaNode = sg.SceneGraphNode("saitamaNode")
+        saitamaNode.transform =tr.scale(self.size,self.size,1)
+        saitamaNode.childs = [saitama_tex]
+        Saitama_c=sg.SceneGraphNode("Saitama_c")
+        Saitama_c.childs += [saitamaNode]
+
+
+        #Imagen verde de Saitama
+        saitama2_tex = createTextureGPUShape(bs.createTextureQuad(1,1), es.SimpleTextureTransformShaderProgram(), "sprites/Saitama2.png") 
+        
+        Saitama2Node =sg.SceneGraphNode("Saitama2Node")
+        Saitama2Node.transform =tr.scale(self.size,self.size,1)
+        Saitama2Node.childs += [saitama2_tex]
+        Saitama2_c=sg.SceneGraphNode("Saitama2_c")
+        Saitama2_c.childs += [Saitama2Node]
+        
+        #Asignación 
+        self.saitama=Saitama_c
+        self.saitama2=Saitama2_c
+        self.model = self.saitama #El player parte sano
+        
         self.posx = 0.55
         self.posy = -0.85
         self.velx = 1
         self.vely = 1 
-        self.model = None 
-        self.controller = None 
-        self.size = size 
+        self.controller = None
+        self.infected = False
+        self.notalive = False #El player está vivo, si muere el juego se acaba 
 
 
     def set_model(self, new_model):
@@ -29,7 +55,6 @@ class Player():
         self.controller = new_controller
 
     def update(self, delta):
-
         if self.controller.is_d_pressed and self.posx < 0.55:
             self.posx += self.velx * delta
 
@@ -43,16 +68,38 @@ class Player():
             self.posy -= self.vely * delta
 
         self.model.transform = tr.matmul([tr.translate(self.posx, self.posy, 0), tr.scale(self.size, self.size, 1)])
+        
 
     def collision(self, objeto):
         for i in objeto:
             if (0.01) > ((self.posx - i.posx)**2 + (self.posy - i.posy)**2) and i.model != i.zombie:
-                if  i.infected:
-                    if rd.choice([1,2,3,4]) == 1: #25% de probabilidad de contagiarse y perder
-                        print("PERDISTE") 
+                if  i.infected: #Si el player entra en contancto con un contagiado se contagia
+                    self.infected = True
+                elif not i.infected and self.infected: #Si el player está contagiado, contagia a las personas
+                    i.infected = True
 
             if (0.01) > ((self.posx - i.posx)**2 + (self.posy - i.posy)**2) and i.model == i.zombie:
-                print("PERDISTE")
+                self.notalive = True 
+                return #Termina el juego
+    
+    def is_infected(self,probability):
+        if self.infected: 
+            num = np.random.rand()
+            if num < probability:
+                self.notalive = True
+                return #termian el juego
+    
+    def spacechange1(self):
+        if self.infected:    
+            self.model = self.saitama2
+
+    def spacechange2(self):
+        if self.infected:    
+            self.model = self.saitama
+
+    def draw(self,pipeline):
+        self.model.transform = tr.translate(self.posx,self.posy,0)
+        sg.drawSceneGraphNode(self.model,pipeline,"transform")
 
 
 class Market():
@@ -62,6 +109,7 @@ class Market():
         self.size_x = size_x
         self.size_y = size_y
         self.model = None
+        self.victory = False
     
     def set_model(self, new_model):
         self.model = new_model
@@ -71,7 +119,8 @@ class Market():
 
     def collision(self, objeto):
         if (0.075) > ((self.posx - objeto.posx)**2 + (self.posy - objeto.posy)**2):
-            print("GANASTE")
+            self.victory = True
+            return #gana el jeugo
 
 
 class Body():
@@ -95,17 +144,18 @@ class Body():
         boros_c=sg.SceneGraphNode("boros_c")
         boros_c.childs += [BorosNode]
 
-        boros2_tex = createTextureGPUShape(bs.createTextureQuad(1,1), es.SimpleTextureTransformShaderProgram(), "sprites/Genos2.png") 
-        Boros2Node =sg.SceneGraphNode("Boros2Node")
-        Boros2Node.transform =tr.scale(self.size,self.size,1)
-        Boros2Node.childs += [boros2_tex]
+        #Imagen verde de genos
+        genos2_tex = createTextureGPUShape(bs.createTextureQuad(1,1), es.SimpleTextureTransformShaderProgram(), "sprites/Genos2.png") 
+        Genos2Node =sg.SceneGraphNode("Genos2Node")
+        Genos2Node.transform =tr.scale(self.size,self.size,1)
+        Genos2Node.childs += [genos2_tex]
         
-        boros2_c=sg.SceneGraphNode("boros2_c")
-        boros2_c.childs += [Boros2Node]
+        Genos2_c=sg.SceneGraphNode("Genos2_c")
+        Genos2_c.childs += [Genos2Node]
 
         self.human=genos_c
         self.zombie=boros_c
-        self.zombie2=boros2_c
+        self.human2=Genos2_c
 
         self.alive = True #True si aun es humano
         self.posx = (np.random.randint(-5,5)+0.5)/10.0
@@ -153,7 +203,7 @@ class Body():
 
     def spacechange1(self):
         if self.infected:    
-            self.model = self.zombie2
+            self.model = self.human2
             
 
     def spacechange2(self):

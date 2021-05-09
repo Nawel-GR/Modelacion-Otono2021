@@ -289,7 +289,3 @@ def createScene(pipeline):
     sceneNode.childs = [backGroundNode]
 
     return sceneNode
-
-
-
-
