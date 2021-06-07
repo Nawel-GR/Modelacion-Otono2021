@@ -17,61 +17,6 @@ from grafica.assets_path import getAssetPath
 import modelo as mod #se importa el modelo
 import vista as vis #se importa la vista
 
-#test-------------------------
-testcueva = [
- [[2., 1., 0., 1.], #HPiso,HTecho,TPiso,TTecho
-  [2., 1., 0., 1.],
-  [2., 1., 0., 1.],
-  [1., 1., 0., 1.],
-  [1., 1., 0., 1.],
-  [1., 1., 0., 1.],
-  [1., 1., 0., 1.],
-  [1., 1., 0., 1.],
-  [1., 1., 0., 1.],
-  [1., 1., 0., 1.]], # Hasta aquí llega x=0
- [[2., 1., 0., 1.],
-  [0.1, 5., 0., 1.],
-  [0.2, 5., 0., 1.],
-  [0.2, 5., 0., 1.],
-  [0.3, 5., 0., 1.],
-  [0.4, 5., 0., 1.],
-  [0.5, 5., 0., 1.],
-  [0.6, 5., 0., 1.],
-  [0.7, 5., 0., 1.],
-  [1., 1., 0., 1.]], # Hasta aquí llega x=1
- [[0., 0., 1., 1.],
-  [0.1, 0., 1., 1.],
-  [0.2, 5., 1., 1.],
-  [0.2, 5., 1., 1.],
-  [0.3, 5., 1., 1.],
-  [0.4, 5., 1., 1.],
-  [0.5, 5., 1., 1.],
-  [0.6, 5., 1., 1.],
-  [0.7, 5., 1., 1.],
-  [1., 1., 1., 1.]], # Hasta aquí llega x=2
- [[1., 1., 1., 1.],
-  [0.1, 5., 1., 1.],
-  [0.2, 5., 1., 1.],
-  [0.2, 5., 1., 1.],
-  [0.3, 5., 1., 1.],
-  [0.4, 5., 1., 1.],
-  [0.5, 5., 1., 1.],
-  [0.6, 5., 1., 1.],
-  [0.7, 5., 1., 1.],
-  [1., 1., 1., 1.]], # Hasta aquí llega x=3
- [[1., 1., 1., 1.],
-  [1., 1., 1., 1.],
-  [1., 1., 1., 1.],
-  [1., 1., 1., 1.],
-  [1., 1., 1., 1.],
-  [1., 1., 1., 1.],
-  [1., 1., 5., 1.],
-  [1., 1., 1., 1.],
-  [1., 1., 1., 1.],
-  [1., 1., 1., 1.]] # Hasta aquí llega x=4
-  ]
-
-#test------------------------------------
 
 # A class to store the application control
 class Controller:
@@ -133,7 +78,7 @@ if __name__ == "__main__":
     glEnable(GL_DEPTH_TEST)
 
     #Test Cueva
-    Pisomesh = mod.crear_piso(testcueva)
+    Pisomesh = mod.crear_piso(vis.testcueva)
 
     # Obtenemos los vertices e indices
     Piso_vertices, Piso_indices = mod.get_vertexs_and_indexes_tex(Pisomesh)
@@ -144,7 +89,7 @@ if __name__ == "__main__":
     gpuPisoMalla.fillBuffers(Piso_vertices, Piso_indices, GL_STATIC_DRAW)
     gpuPisoMalla.texture = es.textureSimpleSetup(getAssetPath("textures.png"), GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST)
 
-    Techomesh = mod.crear_techo(testcueva)
+    Techomesh = mod.crear_techo(vis.testcueva)
 
     # Obtenemos los vertices e indices
     Techo_vertices, Techo_indices = mod.get_vertexs_and_indexes_tex1(Techomesh)
