@@ -1,7 +1,8 @@
 # coding=utf-8
 """
-Daniel Calderon, CC3501, 2019-2
-plotting a 2d function as a surface
+Nahuel Gómez, CC3501, 2020-1
+Tarea 2_a
+Controlador
 """
 
 import glfw
@@ -9,12 +10,13 @@ from OpenGL.GL import *
 import OpenGL.GL.shaders
 import numpy as np
 import sys
-
 import grafica.transformations as tr
 import grafica.easy_shaders as es
-import vista as p1
 from grafica.assets_path import getAssetPath
-import modelo as pr
+
+import modelo as mod #se importa el modelo
+import vista as vis #se importa la vista
+
 #test-------------------------
 testcueva = [
  [[2., 1., 0., 1.], #HPiso,HTecho,TPiso,TTecho
@@ -94,6 +96,7 @@ def on_key(window, key, scancode, action, mods):
     elif key == glfw.KEY_ESCAPE:
         glfw.set_window_should_close(window, True)
 
+
 if __name__ == "__main__":
 
     # Initialize glfw
@@ -129,26 +132,11 @@ if __name__ == "__main__":
     # and which one is at the back
     glEnable(GL_DEPTH_TEST)
 
-    # Creating shapes on GPU memory
-
-    # Crear gpu cuadrado
-    #mesh = p1.create_quad()
-    #quad_vertices, quad_indices = p1.get_vertexs_and_indexes_tex(mesh)
-    #gpuMalla = es.GPUShape().initBuffers()
-    #texpipeline.setupVAO(gpuMalla)
-    #gpuMalla.fillBuffers(quad_vertices, quad_indices, GL_STATIC_DRAW)
-    #gpuMalla.texture = es.textureSimpleSetup(getAssetPath("textures.png"), GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEAR)
-
-    ############################################################################
-    # Crear gpu gaussiana
-    ############################################################################
-
-    # Creamos la malla de la gaussiana
-    #mesh = p1.create_gaussiana(10, 10)
-    Pisomesh = pr.crear_piso(testcueva)
+    #Test Cueva
+    Pisomesh = mod.crear_piso(testcueva)
 
     # Obtenemos los vertices e indices
-    Piso_vertices, Piso_indices = pr.get_vertexs_and_indexes_tex(Pisomesh)
+    Piso_vertices, Piso_indices = mod.get_vertexs_and_indexes_tex(Pisomesh)
 
     # Creamos la gpu y la inicializamos
     gpuPisoMalla = es.GPUShape().initBuffers()
@@ -156,10 +144,10 @@ if __name__ == "__main__":
     gpuPisoMalla.fillBuffers(Piso_vertices, Piso_indices, GL_STATIC_DRAW)
     gpuPisoMalla.texture = es.textureSimpleSetup(getAssetPath("textures.png"), GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST)
 
-    Techomesh = pr.crear_techo(testcueva)
+    Techomesh = mod.crear_techo(testcueva)
 
     # Obtenemos los vertices e indices
-    Techo_vertices, Techo_indices = pr.get_vertexs_and_indexes_tex1(Techomesh)
+    Techo_vertices, Techo_indices = mod.get_vertexs_and_indexes_tex1(Techomesh)
 
     # Creamos la gpu y la inicializamos
     gpuTechoMalla = es.GPUShape().initBuffers()
