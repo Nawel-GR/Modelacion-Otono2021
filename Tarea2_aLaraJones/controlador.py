@@ -14,13 +14,12 @@ import grafica.transformations as tr
 import grafica.easy_shaders as es
 from grafica.assets_path import getAssetPath
 
-import modelo as mod #se importa el modelo
-import vista as vis #se importa la vista
-
-
 # A class to store the application control
 class Controller:
     def __init__(self):
+        self.leftClickOn = False
+        self.theta = 0.0
+        self.mousePos = (0.0, 0.0)
         self.fillPolygon = True
 
 
@@ -36,128 +35,108 @@ def on_key(window, key, scancode, action, mods):
     global controller
 
     if key == glfw.KEY_SPACE:
-        controller.fillPolygon = not controller.fillPolygon
+        _controller.fillPolygon = not _controller.fillPolygon
 
     elif key == glfw.KEY_ESCAPE:
         glfw.set_window_should_close(window, True)
 
+    elif key == glfw.KEY_O:
+        _controller.size -= 0.01
 
-if __name__ == "__main__":
+    elif key == glfw.KEY_P:
+        _controller.size += 0.01
 
-    # Initialize glfw
-    if not glfw.init():
-        sys.exit()
+class Character:
 
-    width = 600
-    height = 600
+    def __init__(self):
+        self.position = np.zeros(3)
+        self.old_pos = 0, 0
+        self.theta = np.pi * 0.5
+        self.phi = 0.
+        self.mouse_sensitivity = 0.5
 
-    window = glfw.create_window(width, height, "Gaussiana", None, None)
+    def update_angle(self, dx, dz, dt):
+        # multiplo_inicial = self.theta // np.pi
 
-    if not window:
-        glfw.terminate()
-        sys.exit()
+        self.phi -= dx * dt * self.mouse_sensitivity
+        theta_0 = self.theta
 
-    glfw.make_context_current(window)
+        dtheta = dz * dt * self.mouse_sensitivity
+        self.theta += dtheta
 
-    # Connecting the callback function 'on_key' to handle keyboard events
-    glfw.set_key_callback(window, on_key)
+        if self.theta < 0:
+            self.theta = 0.01
 
-    # Assembling the shader program
-    pipeline = es.SimpleModelViewProjectionShaderProgram()
-    texpipeline = es.SimpleTextureModelViewProjectionShaderProgram()
+        elif self.theta > np.pi:
+            self.theta = 3.14159
 
-    # Telling OpenGL to use our shader program
-    #glUseProgram(pipeline.shaderProgram)
-    glUseProgram(texpipeline.shaderProgram)
-
-    # Setting up the clear screen color
-    glClearColor(0.85, 0.85, 0.85, 1.0)
-
-    # As we work in 3D, we need to check which part is in front,
-    # and which one is at the back
-    glEnable(GL_DEPTH_TEST)
-
-    #Test Cueva
-    Pisomesh = mod.crear_piso(vis.testcueva)
-
-    # Obtenemos los vertices e indices
-    Piso_vertices, Piso_indices = mod.get_vertexs_and_indexes_tex(Pisomesh)
-
-    # Creamos la gpu y la inicializamos
-    gpuPisoMalla = es.GPUShape().initBuffers()
-    texpipeline.setupVAO(gpuPisoMalla)
-    gpuPisoMalla.fillBuffers(Piso_vertices, Piso_indices, GL_STATIC_DRAW)
-    gpuPisoMalla.texture = es.textureSimpleSetup(getAssetPath("textures.png"), GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST)
-
-    Techomesh = mod.crear_techo(vis.testcueva)
-
-    # Obtenemos los vertices e indices
-    Techo_vertices, Techo_indices = mod.get_vertexs_and_indexes_tex1(Techomesh)
-
-    # Creamos la gpu y la inicializamos
-    gpuTechoMalla = es.GPUShape().initBuffers()
-    texpipeline.setupVAO(gpuTechoMalla)
-    gpuTechoMalla.fillBuffers(Techo_vertices, Techo_indices, GL_STATIC_DRAW)
-    gpuTechoMalla.texture = es.textureSimpleSetup(getAssetPath("textures.png"), GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST)
-
-    t0 = glfw.get_time()
-    camera_theta = np.pi/4
-
-    while not glfw.window_should_close(window):
-        # Using GLFW to check for input events
-        glfw.poll_events()
-
-        # Getting the time difference from the previous iteration
-        t1 = glfw.get_time()
-        dt = t1 - t0
-        t0 = t1
-
-        if (glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS):
-            camera_theta -= 2 * dt
-
-        if (glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS):
-            camera_theta += 2* dt
-
-        # Setting up the view transform
-
-        camX =0.1+ np.sin(camera_theta)
-        camY =0.1+  np.cos(camera_theta)
-
-        viewPos = np.array([camX, camY, 1])
-
-        view = tr.lookAt(
-            viewPos,
-            np.array([0,0,1.2]),
-            np.array([0,0,1])
-        )
-
-        #glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "view"), 1, GL_TRUE, view)
-        glUniformMatrix4fv(glGetUniformLocation(texpipeline.shaderProgram, "view"), 1, GL_TRUE, view)
-
-        # Setting up the projection transform
-        projection = tr.perspective(60, float(width)/float(height), 0.1, 100)
-        #glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "projection"), 1, GL_TRUE, projection)
-        glUniformMatrix4fv(glGetUniformLocation(texpipeline.shaderProgram, "projection"), 1, GL_TRUE, projection)
-
-        # Clearing the screen in both, color and depth
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-
-        # Filling or not the shapes depending on the controller state
-        if (controller.fillPolygon):
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
         else:
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+            pass
 
-        # Drawing shapes with different model transformations
-        #glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "model"), 1, GL_TRUE, tr.uniformScale(1))
-        #pipeline.drawCall(gpuMalla)
-        
-        glUniformMatrix4fv(glGetUniformLocation(texpipeline.shaderProgram, "model"), 1, GL_TRUE, tr.uniformScale(1))
-        
-        texpipeline.drawCall(gpuPisoMalla)
-        texpipeline.drawCall(gpuTechoMalla)
+        # if (self.theta + dtheta) // np.pi == multiplo_inicial:
+        #     self.theta += dtheta
 
-        # Once the drawing is rendered, buffers are swap so an uncomplete drawing is never seen.
-        glfw.swap_buffers(window)
+        return self.phi, self.theta
 
-    glfw.terminate()
+    def move(self, window, viewPos, forward, new_side, dt):
+
+        if (glfw.get_key(window, glfw.KEY_A) == glfw.PRESS):
+            self.position[0] -= 2 * dt
+            viewPos += new_side * dt * 10
+
+        elif (glfw.get_key(window, glfw.KEY_D) == glfw.PRESS):
+            self.position[0] += 2* dt
+            viewPos -= new_side * dt * 10
+
+        elif (glfw.get_key(window, glfw.KEY_W) == glfw.PRESS):
+            self.position[1] += 2* dt
+            viewPos += forward * dt * 10
+
+        elif (glfw.get_key(window, glfw.KEY_S) == glfw.PRESS):
+            self.position[1] -= 2* dt
+            viewPos -= forward * dt * 10
+
+        elif (glfw.get_key(window, glfw.KEY_Q) == glfw.PRESS):
+            self.position[2] += 2* dt
+            viewPos[2] += 2*dt 
+
+        else:
+            pass
+
+        return self.position
+
+# We will use the global controller as communication with the callback function
+_controller = Controller()
+_character = Character()
+
+def cursor_pos_callback(window, x, y):
+    global _controller
+    _controller.mouse_pos = (x, y)
+
+def mouse_button_callback(window, button, action, mods):
+
+    global controller
+
+    """
+    glfw.MOUSE_BUTTON_1: left click
+    glfw.MOUSE_BUTTON_2: right click
+    glfw.MOUSE_BUTTON_3: scroll click
+    """
+
+    if (action == glfw.PRESS or action == glfw.REPEAT):
+        if (button == glfw.MOUSE_BUTTON_1):
+            _controller.leftClickOn = True
+            print("Mouse click - button 1")
+
+        if (button == glfw.MOUSE_BUTTON_2):
+            _controller.rightClickOn = True
+            print("Mouse click - button 2:", glfw.get_cursor_pos(window))
+
+        if (button == glfw.MOUSE_BUTTON_3):
+            print("Mouse click - button 3")
+
+    elif (action ==glfw.RELEASE):
+        if (button == glfw.MOUSE_BUTTON_1):
+            _controller.leftClickOn = False
+        if (button == glfw.MOUSE_BUTTON_2):
+            _controller.rightClickOn = False

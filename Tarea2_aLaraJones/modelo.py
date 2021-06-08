@@ -196,3 +196,40 @@ def get_vertexs_and_indexes_tex1(mesh):
             indexes += [vertex.idx()]
 
     return vertexs, indexes
+
+def get_vertexs_and_indexes_tex2(mesh):
+    # Obtenemos las caras de la malla
+    faces = mesh.faces()
+
+    # Creamos una lista para los vertices e indices
+    vertexs = []
+    i = 0
+    # Obtenemos los vertices y los recorremos
+    for vertex in mesh.points():
+        vertexs += vertex.tolist()
+        # Agregamos un color al azar    
+        if i == 0:
+            vertexs += [1,1]
+            i+= 1
+        elif i == 1:      
+            vertexs += [0,1]
+            i+= 1
+        elif i == 2:
+            vertexs += [0,0]
+            i += 1
+        elif i == 3:
+            vertexs += [1,0]
+            i=0
+        
+        
+    indexes = []
+
+    for face in faces:
+        # Obtenemos los vertices de la cara
+        
+        face_indexes = mesh.fv(face)
+        for vertex in face_indexes:
+            # Obtenemos el numero de indice y lo agregamos a la lista
+            indexes += [vertex.idx()]
+
+    return vertexs, indexes
