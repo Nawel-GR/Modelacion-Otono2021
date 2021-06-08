@@ -22,41 +22,41 @@ class Controller:
         self.mousePos = (0.0, 0.0)
         self.fillPolygon = True
 
-
-# We will use the global controller as communication with the callback function
 controller = Controller()
+
+def cursor_pos_callback(window, x, y):
+    global _controller
+    Controlador.mouse_pos = (x, y)
 
 
 def on_key(window, key, scancode, action, mods):
-
     if action != glfw.PRESS:
         return
     
     global controller
 
     if key == glfw.KEY_SPACE:
-        _controller.fillPolygon = not _controller.fillPolygon
+        Controlador.fillPolygon = not Controlador.fillPolygon
 
     elif key == glfw.KEY_ESCAPE:
         glfw.set_window_should_close(window, True)
 
     elif key == glfw.KEY_O:
-        _controller.size -= 0.01
+        Controlador.size -= 0.01
 
     elif key == glfw.KEY_P:
-        _controller.size += 0.01
+        Controlador.size += 0.01
 
-class Character:
+class Principal:
 
     def __init__(self):
         self.position = np.zeros(3)
         self.old_pos = 0, 0
         self.theta = np.pi * 0.5
-        self.phi = 0.
+        self.phi = 0.0
         self.mouse_sensitivity = 0.5
 
-    def update_angle(self, dx, dz, dt):
-        # multiplo_inicial = self.theta // np.pi
+    def angulo(self, dx, dz, dt):
 
         self.phi -= dx * dt * self.mouse_sensitivity
         theta_0 = self.theta
@@ -80,15 +80,15 @@ class Character:
 
     def move(self, window, viewPos, forward, new_side, dt):
 
-        if (glfw.get_key(window, glfw.KEY_A) == glfw.PRESS):
-            self.position[0] -= 2 * dt
-            viewPos += new_side * dt * 10
+        #if (glfw.get_key(window, glfw.KEY_A) == glfw.PRESS):
+        #    self.position[0] -= 2 * dt
+        #    viewPos += new_side * dt * 10
 
-        elif (glfw.get_key(window, glfw.KEY_D) == glfw.PRESS):
-            self.position[0] += 2* dt
-            viewPos -= new_side * dt * 10
+        #elif (glfw.get_key(window, glfw.KEY_D) == glfw.PRESS):
+        #    self.position[0] += 2* dt
+        #    viewPos -= new_side * dt * 10
 
-        elif (glfw.get_key(window, glfw.KEY_W) == glfw.PRESS):
+        if (glfw.get_key(window, glfw.KEY_W) == glfw.PRESS):
             self.position[1] += 2* dt
             viewPos += forward * dt * 10
 
@@ -96,47 +96,15 @@ class Character:
             self.position[1] -= 2* dt
             viewPos -= forward * dt * 10
 
-        elif (glfw.get_key(window, glfw.KEY_Q) == glfw.PRESS):
-            self.position[2] += 2* dt
-            viewPos[2] += 2*dt 
-
-        else:
-            pass
+        #elif (glfw.get_key(window, glfw.KEY_Q) == glfw.PRESS):
+        #    self.position[2] += 2* dt
+        #    viewPos[2] += 2*dt 
 
         return self.position
 
 # We will use the global controller as communication with the callback function
-_controller = Controller()
-_character = Character()
+Controlador = Controller()
+Lara = Principal()
 
-def cursor_pos_callback(window, x, y):
-    global _controller
-    _controller.mouse_pos = (x, y)
 
-def mouse_button_callback(window, button, action, mods):
 
-    global controller
-
-    """
-    glfw.MOUSE_BUTTON_1: left click
-    glfw.MOUSE_BUTTON_2: right click
-    glfw.MOUSE_BUTTON_3: scroll click
-    """
-
-    if (action == glfw.PRESS or action == glfw.REPEAT):
-        if (button == glfw.MOUSE_BUTTON_1):
-            _controller.leftClickOn = True
-            print("Mouse click - button 1")
-
-        if (button == glfw.MOUSE_BUTTON_2):
-            _controller.rightClickOn = True
-            print("Mouse click - button 2:", glfw.get_cursor_pos(window))
-
-        if (button == glfw.MOUSE_BUTTON_3):
-            print("Mouse click - button 3")
-
-    elif (action ==glfw.RELEASE):
-        if (button == glfw.MOUSE_BUTTON_1):
-            _controller.leftClickOn = False
-        if (button == glfw.MOUSE_BUTTON_2):
-            _controller.rightClickOn = False

@@ -125,6 +125,9 @@ def get_vertexs_and_indexes(mesh):
 
     return vertexs, indexes
 
+
+##need to make only function
+
 def get_vertexs_and_indexes_tex(mesh):
     # Obtenemos las caras de la malla
     faces = mesh.faces()
