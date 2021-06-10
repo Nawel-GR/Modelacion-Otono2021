@@ -12,20 +12,53 @@ import numpy as np
 import sys
 import grafica.transformations as tr
 import grafica.easy_shaders as es
+import grafica.scene_graph as sg
 from grafica.assets_path import getAssetPath
+
+class Shape:
+    def __init__(self, vertices, indices, textureFileName=None):
+        self.vertices = vertices
+        self.indices = indices
+        self.textureFileName = textureFileName
+
+#Identica al createTextureQuad, solo que se intercambian los parametros X y Z
+def createNewTextureQuad(nx, ny):
+
+    # Defining locations and texture coordinates for each vertex of the shape    
+    vertices = [
+    #   positions        texture
+         0, -0.5,-0.5,  0, ny,
+         0, -0.5, 0.5, nx, ny,
+         0,  0.5, 0.5, nx, 0,
+         0,  0.5,-0.5,  0, 0]
+
+    # Defining connections among vertices
+    # We have a triangle every 3 indices specified
+    indices = [
+         0, 1, 2,
+         2, 3, 0]
+
+    return Shape(vertices, indices)
+
+def createTextureGPUShape(shape, pipeline, img_name):
+    gpuShape = es.GPUShape().initBuffers()
+    pipeline.setupVAO(gpuShape)
+    gpuShape.fillBuffers(shape.vertices, shape.indices, GL_STATIC_DRAW)
+    gpuShape.texture = es.textureSimpleSetup(
+        getAssetPath(img_name), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST)
+    return gpuShape
 
 # A class to store the application control
 class Controller:
     def __init__(self):
         self.leftClickOn = False
-        self.theta = 0.0
+        self.rightClickOn = False
         self.mousePos = (0.0, 0.0)
         self.fillPolygon = True
 
-controller = Controller()
 
 def cursor_pos_callback(window, x, y):
-    global _controller
+    global Controlador
     Controlador.mouse_pos = (x, y)
 
 
@@ -47,64 +80,95 @@ def on_key(window, key, scancode, action, mods):
     elif key == glfw.KEY_P:
         Controlador.size += 0.01
 
-class Principal:
+def mouse_button_callback(window, button, action, mods):
+
+    global controller
+
+    if (action == glfw.PRESS or action == glfw.REPEAT):
+        if (button == glfw.MOUSE_BUTTON_1):
+            Controlador.leftClickOn = True
+
+        if (button == glfw.MOUSE_BUTTON_2):
+            Controlador.rightClickOn = True
+
+    elif (action ==glfw.RELEASE):
+        if (button == glfw.MOUSE_BUTTON_1):
+            Controlador.leftClickOn = False
+        if (button == glfw.MOUSE_BUTTON_2):
+            Controlador.rightClickOn = False
+
+class Principal_move:
 
     def __init__(self):
         self.position = np.zeros(3)
-        self.old_pos = 0, 0
-        self.theta = np.pi * 0.5
+        self.angle = np.pi * 0.5
         self.phi = 0.0
-        self.mouse_sensitivity = 0.5
 
-    def angulo(self, dx, dz, dt):
+    def move(self, window, viewPos, forward, new_side, dt):
 
-        self.phi -= dx * dt * self.mouse_sensitivity
-        theta_0 = self.theta
+        if (Controlador.leftClickOn):
+            self.position[1] += 2.5* dt
+            viewPos += forward * dt * 10
 
-        dtheta = dz * dt * self.mouse_sensitivity
-        self.theta += dtheta
-
-        if self.theta < 0:
-            self.theta = 0.01
-
-        elif self.theta > np.pi:
-            self.theta = 3.14159
+        elif (Controlador.rightClickOn):
+            self.position[1] -= 2.5* dt
+            viewPos -= forward * dt * 10
 
         else:
             pass
 
-        # if (self.theta + dtheta) // np.pi == multiplo_inicial:
-        #     self.theta += dtheta
-
-        return self.phi, self.theta
-
-    def move(self, window, viewPos, forward, new_side, dt):
-
-        #if (glfw.get_key(window, glfw.KEY_A) == glfw.PRESS):
-        #    self.position[0] -= 2 * dt
-        #    viewPos += new_side * dt * 10
-
-        #elif (glfw.get_key(window, glfw.KEY_D) == glfw.PRESS):
-        #    self.position[0] += 2* dt
-        #    viewPos -= new_side * dt * 10
-
-        if (glfw.get_key(window, glfw.KEY_W) == glfw.PRESS):
-            self.position[1] += 2* dt
-            viewPos += forward * dt * 10
-
-        elif (glfw.get_key(window, glfw.KEY_S) == glfw.PRESS):
-            self.position[1] -= 2* dt
-            viewPos -= forward * dt * 10
-
-        #elif (glfw.get_key(window, glfw.KEY_Q) == glfw.PRESS):
-        #    self.position[2] += 2* dt
-        #    viewPos[2] += 2*dt 
-
         return self.position
 
-# We will use the global controller as communication with the callback function
+    def angulo(self, dx, dz, dt):
+
+        self.phi -= dx * dt * 0.5
+        angle_0 = self.angle
+
+        dangle = dz * dt * 0.5
+        self.angle += dangle
+
+        if self.angle < 0:
+            self.angle = 0.01
+
+        elif self.angle > np.pi:
+            self.angle = 3.14159
+
+        else:
+            pass
+
+        return self.phi, self.angle
+
+class Principal_dibujo:
+    def __init__(self):
+        Char_tex = createTextureGPUShape(createNewTextureQuad(1,1), es.SimpleTextureModelViewProjectionShaderProgram(), "zen.png")
+
+        charNode =sg.SceneGraphNode("ctexture")
+        charNode.transform =tr.matmul([tr.translate(0,0,0),tr.rotationX(np.pi/2),tr.scale(0,0.8,0.3)])
+        charNode.childs += [Char_tex]
+        char_tr=sg.SceneGraphNode("char_tr")
+        char_tr.childs += [charNode]
+
+        self.model_char = char_tr
+        self.position = np.zeros(3)
+        self.angle = 0
+
+    def update(self,new_pos,angle):
+        self.position[0] = new_pos[0]
+        self.position[1] = new_pos[1]
+        self.position[2] = new_pos[2]
+        self.angle = angle
+
+
+    def draw(self,pipeline):
+        x = self.position[0]
+        y = self.position[1]
+        z = self.position[2]
+        new_angle = self.angle
+
+        self.model_char.transform = tr.matmul([tr.translate(x,y,z),tr.rotationZ(new_angle)])
+
+        sg.drawSceneGraphNode(self.model_char,pipeline,"model")
+
+
+Movimiento = Principal_move()
 Controlador = Controller()
-Lara = Principal()
-
-
-

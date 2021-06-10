@@ -96,54 +96,55 @@ if __name__ == "__main__":
     #Haciendo el callback para el mouse
     glfw.set_input_mode(window,glfw.CURSOR,glfw.CURSOR_DISABLED)
     glfw.set_cursor_pos_callback(window, crt.cursor_pos_callback)
+    glfw.set_mouse_button_callback(window, crt.mouse_button_callback)
 
     # Assembling the shader program
     pipeline = es.SimpleModelViewProjectionShaderProgram()
     texpipeline = es.SimpleTextureModelViewProjectionShaderProgram()
 
     # Telling OpenGL to use our shader program
-    #glUseProgram(pipeline.shaderProgram)
+    glUseProgram(pipeline.shaderProgram)
     glUseProgram(texpipeline.shaderProgram)
 
     # Setting up the clear screen color
     glClearColor(0.85, 0.85, 0.85, 1.0)
 
-    # As we work in 3D, we need to check which part is in front,
-    # and which one is at the back
+    # As we work in 3D, we need to check which part is in front, and which one is at the back
     glEnable(GL_DEPTH_TEST)
 
-    # Creating shapes on GPU memory
-    Pisomesh = pr.crear_piso(testcueva)
+    # Gpu Piso
+    Piso_mesh = pr.crear_piso(testcueva)
 
     # Obtenemos los vertices e indices
-    Piso_vertices, Piso_indices = pr.get_vertexs_and_indexes_tex(Pisomesh)
+    Piso_vertices, Piso_indices = pr.get_vertexs_and_indexes_tex(Piso_mesh)
 
-    # Creamos la gpu y la inicializamos
-    gpuPisoMalla = es.GPUShape().initBuffers()
-    texpipeline.setupVAO(gpuPisoMalla)
-    gpuPisoMalla.fillBuffers(Piso_vertices, Piso_indices, GL_STATIC_DRAW)
-    gpuPisoMalla.texture = es.textureSimpleSetup(getAssetPath("textures.png"), GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST)
+    gpuPiso_malla = es.GPUShape().initBuffers()
+    texpipeline.setupVAO(gpuPiso_malla)
+    gpuPiso_malla.fillBuffers(Piso_vertices, Piso_indices, GL_STATIC_DRAW)
+    gpuPiso_malla.texture = es.textureSimpleSetup(getAssetPath("textures.png"), GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST)
 
-    Techomesh = pr.crear_techo(testcueva)
+    # Gpu Techo
+    Techo_mesh = pr.crear_techo(testcueva)
 
     # Obtenemos los vertices e indices
-    Techo_vertices, Techo_indices = pr.get_vertexs_and_indexes_tex1(Techomesh)
+    Techo_vertices, Techo_indices = pr.get_vertexs_and_indexes_tex1(Techo_mesh)
 
-    # Creamos la gpu y la inicializamos
-    gpuTechoMalla = es.GPUShape().initBuffers()
-    texpipeline.setupVAO(gpuTechoMalla)
-    gpuTechoMalla.fillBuffers(Techo_vertices, Techo_indices, GL_STATIC_DRAW)
-    gpuTechoMalla.texture = es.textureSimpleSetup(getAssetPath("textures.png"), GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST)
+    gpuTecho_malla = es.GPUShape().initBuffers()
+    texpipeline.setupVAO(gpuTecho_malla)
+    gpuTecho_malla.fillBuffers(Techo_vertices, Techo_indices, GL_STATIC_DRAW)
+    gpuTecho_malla.texture = es.textureSimpleSetup(getAssetPath("textures.png"), GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST)
+
+    #Se incorpora personaje
+    zenitsu = crt.Principal_dibujo()
 
     #variables a utilizar
-    t0 = glfw.get_time()
-    z0,x0 = 0. , 0.
+    t_0 = glfw.get_time()
+    z_0,x_0 = 0. , 0.
     up = np.array((0., 0., 1.))
     viewPos = np.zeros(3)
     viewPos[2] = 2.0
 
     while not glfw.window_should_close(window):
-        # Using GLFW to check for input events
         glfw.poll_events()
 
         # Filling or not the shapes depending on the controller state
@@ -153,41 +154,34 @@ if __name__ == "__main__":
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
 
         # Getting the time difference from the previous iteration
-        t1 = glfw.get_time()
-        dt = t1 - t0
-        t0 = t1
+        t_1 = glfw.get_time()
+        dt = t_1 - t_0
+        t_0 = t_1
 
-        x1, z1 = glfw.get_cursor_pos(window)
+        x_1, z_1 = glfw.get_cursor_pos(window)
 
-        dz = z1 - z0
-        z0 = z1
+        dz = z_1 - z_0
+        z_0 = z_1
 
-        dx = x1 - x0
-        x0 = x1
+        dx = x_1 - x_0
+        x_0 = x_1
 
         #Angulos de vision
-        phi, theta = crt.Lara.angulo(dx, dz, dt)
-
-        # REMAINDER:
-        #  x = cos(phi) * sin(theta)
-        #  y = sin(phi) * sin(theta)
-        #  z = cos(theta)
-        at = np.array([np.cos(phi) * np.sin(theta), np.sin(phi) * np.sin(theta), np.cos(theta)])
-
+        phi, theta = crt.Movimiento.angulo(dx, dz, dt)
         new_pi = phi + np.pi * 0.5 # Simple correction
 
-        # Side vector, this helps us define our sideway movement
-        new_side = np.array([np.cos(new_pi) * np.sin(theta), np.sin(new_pi) * np.sin(theta), 0])
-
-        # height of our character. Where are his eyes?
-        # viewPos[2] = 0.8
-
+        #Vector at
+        at = np.array([np.cos(phi) * np.sin(theta), np.sin(phi) * np.sin(theta), np.cos(theta)])
         # We have to redefine our at and forward vectors now considering our character's position.
         new_at = at + viewPos
         forward = new_at - viewPos
 
-        # Move character according to the given parameters
-        crt.Lara.move(window, viewPos, forward, new_side, dt)
+        # Side vector, this helps us define our sideway movement
+        new_side = np.array([np.cos(new_pi) * np.sin(theta), np.sin(new_pi) * np.sin(theta), 0])
+
+        # Move character 
+        crt.Movimiento.move(window, viewPos, forward, new_side, dt)
+        zenitsu.update(at+viewPos,phi)
 
         # Setting camera (eye, at, up)
         view = tr.lookAt(viewPos,at + viewPos,up)
@@ -207,9 +201,10 @@ if __name__ == "__main__":
         glUniformMatrix4fv(glGetUniformLocation(texpipeline.shaderProgram, "model"), 1, GL_TRUE, tr.uniformScale(1))
         
         #Drawcall
-        texpipeline.drawCall(gpuPisoMalla)
-        texpipeline.drawCall(gpuTechoMalla)
-
+        texpipeline.drawCall(gpuPiso_malla)
+        texpipeline.drawCall(gpuTecho_malla)
+        zenitsu.draw(texpipeline)  
+        
         # Once the drawing is rendered, buffers are swap so an uncomplete drawing is never seen.
         glfw.swap_buffers(window)
 

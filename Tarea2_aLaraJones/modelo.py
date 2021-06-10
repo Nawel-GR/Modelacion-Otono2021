@@ -140,16 +140,16 @@ def get_vertexs_and_indexes_tex(mesh):
         vertexs += vertex.tolist()
         # Agregamos un color al azar    
         if i == 0:
-            vertexs += [0,0]
+            vertexs += [2/12,0]
             i+= 1
         elif i == 1:      
-            vertexs += [1/12,0]
+            vertexs += [3/12,0]
             i+= 1
         elif i == 2:
-            vertexs += [1/12,1]
+            vertexs += [3/12,1]
             i += 1
         elif i == 3:
-            vertexs += [0,1]
+            vertexs += [2/12,1]
             i=0
         
     indexes = []
@@ -182,10 +182,10 @@ def get_vertexs_and_indexes_tex1(mesh):
             vertexs += [2/12,0]
             i+= 1
         elif i == 2:
-            vertexs += [1/12,1]
+            vertexs += [2/12,1]
             i = 0
         elif i == 3:
-            vertexs += [2/12,1]
+            vertexs += [1/12,1]
             i=0
         
     indexes = []
