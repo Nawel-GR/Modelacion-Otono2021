@@ -79,8 +79,8 @@ if __name__ == "__main__":
     if not glfw.init():
         sys.exit()
 
-    width = 800
-    height = 800
+    width = 700
+    height = 700
 
     window = glfw.create_window(width, height, "Gaussiana", None, None)
 
