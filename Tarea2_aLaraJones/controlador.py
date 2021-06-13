@@ -21,19 +21,14 @@ class Shape:
         self.indices = indices
         self.textureFileName = textureFileName
 
-#Identica al createTextureQuad, solo que se intercambian los parametros X y Z
-def createNewTextureQuad(nx, ny):
-
-    # Defining locations and texture coordinates for each vertex of the shape    
+def createNewTextureQuad(xi,xf,yi, yf):
     vertices = [
     #   positions        texture
-         0, -0.5,-0.5,  0, ny,
-         0, -0.5, 0.5, nx, ny,
-         0,  0.5, 0.5, nx, 0,
-         0,  0.5,-0.5,  0, 0]
+         0, -0.5,-0.5, xi, yf,
+         0, -0.5, 0.5, xf, yf,
+         0,  0.5, 0.5, xf, yi,
+         0,  0.5,-0.5, xi, yi]
 
-    # Defining connections among vertices
-    # We have a triangle every 3 indices specified
     indices = [
          0, 1, 2,
          2, 3, 0]
@@ -48,7 +43,6 @@ def createTextureGPUShape(shape, pipeline, img_name):
         getAssetPath(img_name), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST)
     return gpuShape
 
-# A class to store the application control
 class Controller:
     def __init__(self):
         self.leftClickOn = False
@@ -56,11 +50,9 @@ class Controller:
         self.mousePos = (0.0, 0.0)
         self.fillPolygon = True
 
-
 def cursor_pos_callback(window, x, y):
     global Controlador
     Controlador.mouse_pos = (x, y)
-
 
 def on_key(window, key, scancode, action, mods):
     if action != glfw.PRESS:
@@ -97,10 +89,11 @@ def mouse_button_callback(window, button, action, mods):
         if (button == glfw.MOUSE_BUTTON_2):
             Controlador.rightClickOn = False
 
-class Principal_move:
+class Principal_move: #movimiento del personaje
 
     def __init__(self):
         self.position = np.zeros(3)
+        self.plinterna = np.zeros(3)
         self.angle = np.pi * 0.5
         self.phi = 0.0
 
@@ -108,14 +101,13 @@ class Principal_move:
 
         if (Controlador.leftClickOn):
             self.position[1] += 2.5* dt
+            self.plinterna[1] += 3*dt
             viewPos += forward * dt * 10
 
         elif (Controlador.rightClickOn):
             self.position[1] -= 2.5* dt
+            self.plinterna[1] -= 3*dt
             viewPos -= forward * dt * 10
-
-        else:
-            pass
 
         return self.position
 
@@ -133,24 +125,25 @@ class Principal_move:
         elif self.angle > np.pi:
             self.angle = 3.14159
 
-        else:
-            pass
-
         return self.phi, self.angle
 
-class Principal_dibujo:
+class Principal_dibujo: #dibujo del personaje
     def __init__(self):
-        Char_tex = createTextureGPUShape(createNewTextureQuad(1,1), es.SimpleTextureModelViewProjectionShaderProgram(), "zen.png")
+        gpus=[]
+        for i in range(12):
+            gpuChar = es.GPUShape().initBuffers()
+            es.SimpleTextureModelViewProjectionShaderProgram().setupVAO(gpuChar)
 
-        charNode =sg.SceneGraphNode("ctexture")
-        charNode.transform =tr.matmul([tr.translate(0,0,0),tr.rotationX(np.pi/2),tr.scale(0,0.8,0.3)])
-        charNode.childs += [Char_tex]
-        char_tr=sg.SceneGraphNode("char_tr")
-        char_tr.childs += [charNode]
+            shapeChar = createNewTextureQuad(i/12,(i + 1)/12,3/4,1)
+            gpuChar.fillBuffers(shapeChar.vertices, shapeChar.indices, GL_STATIC_DRAW)
+            gpuChar.texture = es.textureSimpleSetup(
+                getAssetPath("spritet2v2.png"), GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST)
+            gpus.append(gpuChar)
 
-        self.model_char = char_tr
         self.position = np.zeros(3)
         self.angle = 0
+
+        self.sprite = gpus
 
     def update(self,new_pos,angle):
         self.position[0] = new_pos[0]
@@ -158,17 +151,30 @@ class Principal_dibujo:
         self.position[2] = new_pos[2]
         self.angle = angle
 
+    
+    def position_in_matrix(self,matriz):
+        for i in range(len(matriz)):
+            for i in range(len(matriz[i])):
+                return
 
-    def draw(self,pipeline):
+
+    def draw(self,pipeline,actual_sprite):
         x = self.position[0]
         y = self.position[1]
         z = self.position[2]
-        new_angle = self.angle
+        phi = self.angle
+        tex = self.sprite[actual_sprite]
 
-        self.model_char.transform = tr.matmul([tr.translate(x,y,z),tr.rotationZ(new_angle)])
+        charNode =sg.SceneGraphNode("ctexture")
+        charNode.transform =tr.matmul([tr.rotationX(np.pi/2),tr.scale(0,0.8,0.3)])
+        charNode.childs += [tex]
+        char_tr=sg.SceneGraphNode("char_tr")
+        char_tr.childs += [charNode]
 
-        sg.drawSceneGraphNode(self.model_char,pipeline,"model")
+        char_tr.transform = tr.matmul([tr.translate(x,y,z),tr.rotationZ(phi)])
+
+        sg.drawSceneGraphNode(char_tr,pipeline,"model")
 
 
-Movimiento = Principal_move()
-Controlador = Controller()
+Movimiento = Principal_move() 
+Controlador = Controller() 

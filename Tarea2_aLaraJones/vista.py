@@ -10,6 +10,7 @@ import OpenGL.GL.shaders
 import numpy as np
 import sys
 
+import grafica.lighting_shaders as ls
 import grafica.transformations as tr
 import grafica.easy_shaders as es
 from grafica.assets_path import getAssetPath
@@ -17,7 +18,7 @@ import modelo as pr
 import controlador as crt
 
 #test-------------------------
-testcueva = [
+testcueva =  [
  [[2., 1., 0., 1.], #HPiso,HTecho,TPiso,TTecho
   [2., 1., 0., 1.],
   [2., 1., 0., 1.],
@@ -68,7 +69,7 @@ testcueva = [
   [1., 1., 1., 1.],
   [1., 1., 1., 1.],
   [1., 1., 1., 1.]] # Hasta aquí llega x=4
-  ]
+  ]# Y = 10
 
 cave = np.load("cave.npy")
 cave = cave.tolist()
@@ -100,49 +101,48 @@ if __name__ == "__main__":
 
     # Assembling the shader program
     pipeline = es.SimpleModelViewProjectionShaderProgram()
-    texpipeline = es.SimpleTextureModelViewProjectionShaderProgram()
+    texpipeline = ls.SpotlightTexturePhongShaderProgram()
 
     # Telling OpenGL to use our shader program
-    glUseProgram(pipeline.shaderProgram)
     glUseProgram(texpipeline.shaderProgram)
 
     # Setting up the clear screen color
-    glClearColor(0.85, 0.85, 0.85, 1.0)
+    glClearColor(0.5, 0.5, 0.5, 1.0)
 
     # As we work in 3D, we need to check which part is in front, and which one is at the back
     glEnable(GL_DEPTH_TEST)
-
-    # Gpu Piso
-    Piso_mesh = pr.crear_piso(testcueva)
-
-    # Obtenemos los vertices e indices
-    Piso_vertices, Piso_indices = pr.get_vertexs_and_indexes_tex(Piso_mesh)
-
-    gpuPiso_malla = es.GPUShape().initBuffers()
-    texpipeline.setupVAO(gpuPiso_malla)
-    gpuPiso_malla.fillBuffers(Piso_vertices, Piso_indices, GL_STATIC_DRAW)
-    gpuPiso_malla.texture = es.textureSimpleSetup(getAssetPath("textures.png"), GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST)
-
+    
     # Gpu Techo
-    Techo_mesh = pr.crear_techo(testcueva)
-
-    # Obtenemos los vertices e indices
-    Techo_vertices, Techo_indices = pr.get_vertexs_and_indexes_tex1(Techo_mesh)
+    Techo_mesh = pr._create(testcueva,1)
+    shapeTecho = pr.toShape(Techo_mesh)
 
     gpuTecho_malla = es.GPUShape().initBuffers()
     texpipeline.setupVAO(gpuTecho_malla)
-    gpuTecho_malla.fillBuffers(Techo_vertices, Techo_indices, GL_STATIC_DRAW)
-    gpuTecho_malla.texture = es.textureSimpleSetup(getAssetPath("textures.png"), GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST)
+    gpuTecho_malla.fillBuffers(shapeTecho.vertices, shapeTecho.indices, GL_STATIC_DRAW)
+    gpuTecho_malla.texture = es.textureSimpleSetup(getAssetPath("texturestest.png"), GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST)
+
+    # Gpu Piso
+    Piso_mesh = pr._create(testcueva,0)
+    shapePiso = pr.toShape(Piso_mesh)
+
+    gpuPiso_malla = es.GPUShape().initBuffers()
+    texpipeline.setupVAO(gpuPiso_malla)
+    gpuPiso_malla.fillBuffers(shapePiso.vertices, shapePiso.indices, GL_STATIC_DRAW)
+    gpuPiso_malla.texture = es.textureSimpleSetup(getAssetPath("texturestest.png"), GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST)
 
     #Se incorpora personaje
-    zenitsu = crt.Principal_dibujo()
+    joven = crt.Principal_dibujo()
 
     #variables a utilizar
     t_0 = glfw.get_time()
+    t2 = glfw.get_time()
     z_0,x_0 = 0. , 0.
     up = np.array((0., 0., 1.))
     viewPos = np.zeros(3)
     viewPos[2] = 2.0
+    i=0
+    personaje_pos = np.zeros(3)
+    camera_theta = np.pi/4
 
     while not glfw.window_should_close(window):
         glfw.poll_events()
@@ -181,19 +181,34 @@ if __name__ == "__main__":
 
         # Move character 
         crt.Movimiento.move(window, viewPos, forward, new_side, dt)
-        zenitsu.update(at+viewPos,phi)
 
         # Setting camera (eye, at, up)
-        view = tr.lookAt(viewPos,at + viewPos,up)
-
-        #glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "view"), 1, GL_TRUE, view)
-        glUniformMatrix4fv(glGetUniformLocation(texpipeline.shaderProgram, "view"), 1, GL_TRUE, view)
+        update_at= at + viewPos
+        view = tr.lookAt(viewPos,update_at,up)
 
         # Setting up the projection transform
         projection = tr.perspective(60, float(width)/float(height), 0.1, 100)
 
-        #glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "projection"), 1, GL_TRUE, projection)
         glUniformMatrix4fv(glGetUniformLocation(texpipeline.shaderProgram, "projection"), 1, GL_TRUE, projection)
+
+        glUniform3f(glGetUniformLocation(texpipeline.shaderProgram, "La"), 0.4, 0.4, 0.4)
+        glUniform3f(glGetUniformLocation(texpipeline.shaderProgram, "Ld"), 1.0, 1.0, 1.0)
+        glUniform3f(glGetUniformLocation(texpipeline.shaderProgram, "Ls"), 1.0, 1.0, 1.0)
+
+        glUniform3f(glGetUniformLocation(texpipeline.shaderProgram, "Ka"), 1.0, 1.0, 1.0)
+        glUniform3f(glGetUniformLocation(texpipeline.shaderProgram, "Kd"), 0.5, 0.5, 0.5)
+        glUniform3f(glGetUniformLocation(texpipeline.shaderProgram, "Ks"), 0.0, 0.0, 0.0)
+
+        glUniform3f(glGetUniformLocation(texpipeline.shaderProgram, "lightposition"),*crt.Movimiento.plinterna)
+        glUniform3f(glGetUniformLocation(texpipeline.shaderProgram, "lightDirection"), *update_at)
+        glUniform3f(glGetUniformLocation(texpipeline.shaderProgram, "viewPosition"), *viewPos)
+        glUniform1ui(glGetUniformLocation(texpipeline.shaderProgram, "focused"),10)
+        glUniform1ui(glGetUniformLocation(texpipeline.shaderProgram, "shininess"),2)       
+        glUniform1f(glGetUniformLocation(texpipeline.shaderProgram, "constantAttenuation"), 1.0)
+        glUniform1f(glGetUniformLocation(texpipeline.shaderProgram, "linearAttenuation"), 0.0)
+        glUniform1f(glGetUniformLocation(texpipeline.shaderProgram, "quadraticAttenuation"), 0.0)        
+
+        glUniformMatrix4fv(glGetUniformLocation(texpipeline.shaderProgram, "view"), 1, GL_TRUE, view)
 
         # Clearing the screen in both, color and depth
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
@@ -203,9 +218,33 @@ if __name__ == "__main__":
         #Drawcall
         texpipeline.drawCall(gpuPiso_malla)
         texpipeline.drawCall(gpuTecho_malla)
-        zenitsu.draw(texpipeline)  
         
-        # Once the drawing is rendered, buffers are swap so an uncomplete drawing is never seen.
+        t3 = glfw.get_time()
+        dt1 = t2-t3
+        t2 = t3
+
+        personaje_pos[0]=new_at[0]
+        personaje_pos[1]=new_at[1]
+
+        if pr.up_z(Piso_mesh,personaje_pos) != None:
+            personaje_pos[2]=pr.up_z(Piso_mesh,personaje_pos)+ 0.5
+            viewPos[2]= personaje_pos[2]
+        joven.update(personaje_pos,phi)
+
+        if  (crt.Controlador.leftClickOn ):
+            if i == 12 or i == -1 :                
+                i =0
+            joven.draw(texpipeline,i)
+            i +=1
+
+        elif crt.Controlador.rightClickOn:
+            if i == -1 or i == 12:
+                i = 11
+            joven.draw(texpipeline,i)
+            i -=1
+        else:
+            joven.draw(texpipeline,0)
+
         glfw.swap_buffers(window)
 
     glfw.terminate()

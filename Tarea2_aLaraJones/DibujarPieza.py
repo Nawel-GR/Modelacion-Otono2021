@@ -8,7 +8,7 @@ import grafica.easy_shaders as es
 import grafica.transformations as tr
 import grafica.performance_monitor as pm
 import grafica.scene_graph as sg
-from Piezadorada import *
+from modelo import *
 from model import *
 
 

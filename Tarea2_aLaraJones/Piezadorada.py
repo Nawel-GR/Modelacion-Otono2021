@@ -80,12 +80,7 @@ def evalMixCurve(N):
     P1 = np.array([[0.27, -0.04, 0]]).T
     P2 = np.array([[0.42, 0.06, 0]]).T
     P3 = np.array([[0.5, -0.06, 0]]).T
-    #P4 = np.array([[-0.5, -0.06, 0]]).T
-    #T0 = np.array([[-0.13, 0.35, 0]]).T
-    #alpha = 1
-    #T1 = 3 * alpha * (P1 - P0)
-    # Matrices de Hermite y Beziers
-    #H_M = cv.hermiteMatrix(P4, P0, T0, T1)
+    
     B_M = cv.bezierMatrix(P0, P1, P2, P3)
 
     # Arreglo de numeros entre 0 y 1
