@@ -14,6 +14,7 @@ import grafica.transformations as tr
 import grafica.easy_shaders as es
 import grafica.scene_graph as sg
 from grafica.assets_path import getAssetPath
+import modelo as pr
 
 class Shape:
     def __init__(self, vertices, indices, textureFileName=None):
@@ -76,12 +77,20 @@ def mouse_button_callback(window, button, action, mods):
 
     global controller
 
+    """
+    glfw.MOUSE_BUTTON_1: left click
+    glfw.MOUSE_BUTTON_2: right click
+    glfw.MOUSE_BUTTON_3: scroll click
+    """
+
     if (action == glfw.PRESS or action == glfw.REPEAT):
         if (button == glfw.MOUSE_BUTTON_1):
             Controlador.leftClickOn = True
+            print("Mouse click - button 1")
 
         if (button == glfw.MOUSE_BUTTON_2):
             Controlador.rightClickOn = True
+            print("Mouse click - button 2:", glfw.get_cursor_pos(window))
 
     elif (action ==glfw.RELEASE):
         if (button == glfw.MOUSE_BUTTON_1):
@@ -93,20 +102,20 @@ class Principal_move: #movimiento del personaje
 
     def __init__(self):
         self.position = np.zeros(3)
-        self.plinterna = np.zeros(3)
+        self.poslinterna = np.zeros(3)
         self.angle = np.pi * 0.5
         self.phi = 0.0
 
     def move(self, window, viewPos, forward, new_side, dt):
 
         if (Controlador.leftClickOn):
-            self.position[1] += 2.5* dt
-            self.plinterna[1] += 3*dt
+            self.position[1] += 2.1* dt
+            self.poslinterna[1] += 2.6*dt
             viewPos += forward * dt * 10
 
         elif (Controlador.rightClickOn):
-            self.position[1] -= 2.5* dt
-            self.plinterna[1] -= 3*dt
+            self.position[1] -= 2.1* dt
+            self.poslinterna[1] -= 2.6*dt
             viewPos -= forward * dt * 10
 
         return self.position
@@ -132,18 +141,34 @@ class Principal_dibujo: #dibujo del personaje
         gpus=[]
         for i in range(12):
             gpuChar = es.GPUShape().initBuffers()
-            es.SimpleTextureModelViewProjectionShaderProgram().setupVAO(gpuChar)
+            es.SimpleTextureTransformShaderProgram().setupVAO(gpuChar)
 
             shapeChar = createNewTextureQuad(i/12,(i + 1)/12,3/4,1)
             gpuChar.fillBuffers(shapeChar.vertices, shapeChar.indices, GL_STATIC_DRAW)
             gpuChar.texture = es.textureSimpleSetup(
-                getAssetPath("spritet2v2.png"), GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST)
+                getAssetPath("Principal.png"), GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER, GL_NEAREST, GL_NEAREST)
             gpus.append(gpuChar)
+        
+        self.Personaje = gpus
+
+        # Cuando ganamos se cambia el personaje por win
+        WinCharGpu = es.GPUShape().initBuffers()
+        es.SimpleTextureTransformShaderProgram().setupVAO(WinCharGpu)
+        shapeWinChar = createNewTextureQuad(0,1,0,1)
+        WinCharGpu.fillBuffers(shapeWinChar.vertices, shapeWinChar.indices, GL_STATIC_DRAW)
+        WinCharGpu.texture = es.textureSimpleSetup(
+            getAssetPath("Win.png"), GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER, GL_NEAREST, GL_NEAREST)
+
+        winNode =sg.SceneGraphNode("winNode")
+        winNode.transform =tr.matmul([tr.rotationX(np.pi/2),tr.scale(0,0.8,0.8)])
+        winNode.childs += [WinCharGpu]
+        Win_tr=sg.SceneGraphNode("winChar_tr")
+        Win_tr.childs += [winNode]
+
+        self.Win = Win_tr
 
         self.position = np.zeros(3)
         self.angle = 0
-
-        self.sprite = gpus
 
     def update(self,new_pos,angle):
         self.position[0] = new_pos[0]
@@ -151,22 +176,15 @@ class Principal_dibujo: #dibujo del personaje
         self.position[2] = new_pos[2]
         self.angle = angle
 
-    
-    def position_in_matrix(self,matriz):
-        for i in range(len(matriz)):
-            for i in range(len(matriz[i])):
-                return
-
-
-    def draw(self,pipeline,actual_sprite):
+    def draw(self,pipeline,actual_Personaje):
         x = self.position[0]
         y = self.position[1]
         z = self.position[2]
         phi = self.angle
-        tex = self.sprite[actual_sprite]
+        tex = self.Personaje[actual_Personaje]
 
         charNode =sg.SceneGraphNode("ctexture")
-        charNode.transform =tr.matmul([tr.rotationX(np.pi/2),tr.scale(0,0.8,0.3)])
+        charNode.transform =tr.matmul([tr.rotationX(np.pi/2),tr.scale(0,0.6,0.3)])
         charNode.childs += [tex]
         char_tr=sg.SceneGraphNode("char_tr")
         char_tr.childs += [charNode]
@@ -174,6 +192,55 @@ class Principal_dibujo: #dibujo del personaje
         char_tr.transform = tr.matmul([tr.translate(x,y,z),tr.rotationZ(phi)])
 
         sg.drawSceneGraphNode(char_tr,pipeline,"model")
+    
+    def win_draw(self,pipeline):
+        x = self.position[0]
+        y = self.position[1]
+        z = self.position[2]
+        phi = self.angle
+
+        self.Win.transform = tr.matmul([tr.translate(x,y,z),tr.rotationZ(phi)])
+
+        sg.drawSceneGraphNode(self.Win,pipeline,"model")
+
+
+class objeto:
+    def __init__(self,x,y):
+
+        pieza = sg.SceneGraphNode("Pieza")
+        pieza.transform = tr.matmul([tr.rotationX(np.pi/2),tr.scale(0.5,0.5,1)])
+        pieza.childs = [pr.createPiece(es.SimpleTransformShaderProgram())]
+
+        piece_tr = sg.SceneGraphNode("pieza_tr")
+        piece_tr.childs = [pieza]
+
+        self.posicion = np.zeros(3)
+        self.posicion[0] = np.random.randint(x-3)
+        self.posicion[1] = np.random.randint(y-3)            
+        self.object = piece_tr
+        self.angle = 0
+
+    def update_z(self,pos_z):
+        self.posicion[2]  = pos_z
+
+    def update_angle(self,newangle):
+        self.angle = newangle    
+
+    def take(self, pj_pos):
+        if (abs(self.posicion[0]-pj_pos[0])<=0.2) and (abs(self.posicion[1]-pj_pos[1])<=0.2):
+            return True
+        else:
+            return False
+
+    def draw(self,pipeline):
+        x=self.posicion[0]
+        y=self.posicion[1]
+        if self.posicion[2] == None:
+            z=0.8
+        z=self.posicion[2]+0.7
+        phi = self.angle
+        self.object.transform = tr.matmul([tr.translate(x,y,z),tr.rotationZ(phi+np.pi/2)])
+        sg.drawSceneGraphNode(self.object, pipeline, "model")
 
 
 Movimiento = Principal_move() 

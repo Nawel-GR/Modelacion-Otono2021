@@ -48,6 +48,47 @@ def textureSimpleSetup(imgName, sWrapMode, tWrapMode, minFilterMode, maxFilterMo
 
     return texture
 
+def textureMatrixSimpleSetup(imgName, sWrapMode, tWrapMode, minFilterMode, maxFilterMode,matriz,T_P):
+     # wrapMode: GL_REPEAT, GL_CLAMP_TO_EDGE
+     # filterMode: GL_LINEAR, GL_NEAREST
+    texture = glGenTextures(1)
+    glBindTexture(GL_TEXTURE_2D, texture)
+
+    # texture wrapping params
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, sWrapMode)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, tWrapMode)
+
+    # texture filtering params
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilterMode)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, maxFilterMode)
+
+    im = Image.open(imgName)
+
+    for i in range(len(matriz)):
+        for j in range(len(matriz[i])):
+            if T_P == "P":
+                z = matriz[i][j][2]
+            elif T_P == "T":
+                z = matriz[i][j][3]
+
+            (left, upper, right, lower) = (100*z, 0, 100*z+100, 100)
+
+            image = im.crop((left, upper, right, lower))
+            img_data = np.array(list(image.getdata()), np.uint8)
+
+            if image.mode == "RGB":
+                internalFormat = GL_RGB
+                format = GL_RGB
+            elif image.mode == "RGBA":
+                internalFormat = GL_RGBA
+                format = GL_RGBA
+            else:
+                print("Image mode not supported.")
+                raise Exception()
+
+            glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, image.size[0], image.size[1], 0, format, GL_UNSIGNED_BYTE, img_data)
+
+    return texture
 
 class SimpleShaderProgram:
 

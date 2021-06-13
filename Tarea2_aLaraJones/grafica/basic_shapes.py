@@ -141,15 +141,34 @@ def createTextureQuad(nx, ny):
 
     return Shape(vertices, indices)
 
-def createTextureQuadZ(nx, ny):
+def createTextureQuadZ(xi,xf,yi, yf):
 
     # Defining locations and texture coordinates for each vertex of the shape    
     vertices = [
-    #   positions        texture
-         0, -0.5,-0.5,  0, ny,
-         0, -0.5, 0.5, nx, ny,
-         0,  0.5, 0.5, nx, 0,
-         0,  0.5,-0.5,  0, 0]
+    #   positions        texture 
+         0, -0.5,-0.5, xi, yf, 
+         0, -0.5, 0.5, xf, yf,
+         0,  0.5, 0.5, xf, yi, 
+         0,  0.5,-0.5, xi, yi, ]
+
+    # Defining connections among vertices
+    # We have a triangle every 3 indices specified
+    indices = [
+         0, 1, 2,
+         2, 3, 0]
+
+    return Shape(vertices, indices)
+
+
+def createTextureQuadZnormals(xi,xf,yi, yf):
+
+    # Defining locations and texture coordinates for each vertex of the shape    
+    vertices = [
+    #   positions        texture normals
+         0, -0.5,-0.5, xi, yf, 0, -1 , -1,
+         0, -0.5, 0.5, xf, yf, 0, -1 , 1,
+         0,  0.5, 0.5, xf, yi, 0, 1 , 1,
+         0,  0.5,-0.5, xi, yi, 0, 1 , -1 ]
 
     # Defining connections among vertices
     # We have a triangle every 3 indices specified

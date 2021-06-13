@@ -43,7 +43,7 @@ def _create(matriz,tipo):#tipo = 0 = piso, tipo 1 = techo
     _mesh= om.TriMesh()
 
     xs = np.linspace(-5, 5, len(matriz))
-    ys = np.linspace(-5, 5, len(matriz[1]))
+    ys = np.linspace(-5, 5, len(matriz[tipo]))
 
     for i in range(len(matriz)):
         for j in range(len(matriz[i])):
@@ -69,10 +69,10 @@ def _create(matriz,tipo):#tipo = 0 = piso, tipo 1 = techo
             _mesh.add_face(vertexs[i_3], vertexs[i_4], vertexs[i_1])
             
             if i %4 == 0:
-                _mesh.set_texcoord2D(vertexs[i_1], [i+j,i+j])
                 _mesh.set_texcoord2D(vertexs[i_4], [i+j,i+j+1])
                 _mesh.set_texcoord2D(vertexs[i_3], [i+j+1,i+j+1])
                 _mesh.set_texcoord2D(vertexs[i_2], [i+j+1,i+j])
+                _mesh.set_texcoord2D(vertexs[i_1], [i+j,i+j])
                    
             if i%4 == 1:
                 _mesh.set_texcoord2D(vertexs[i_1], [i+j,i+j+1])
@@ -139,7 +139,6 @@ def toShape(mesh):
 
     return bs.Shape(vertices, indices)
 
-
 def toShapeRoof(mesh):
     # Requesting normals per face
     mesh.request_face_normals()
@@ -198,13 +197,13 @@ def up_z(mesh,position):
         vert_2 = mesh.point(vert_f[1]).tolist()
         vert_3 = mesh.point(vert_f[2]).tolist()
         
-        if (abs(vert_1[0]-position[0]) <=0.5 and abs(vert_1[1]-position[1])<=0.5):
+        if (abs(vert_1[0]-position[0]) <=1 and abs(vert_1[1]-position[1])<=1):
             z = vert_1[2]           
             return z
-        if (abs(vert_2[0]-position[0]) <=0.5 and abs(vert_2[1]-position[1])<=0.5):
+        if (abs(vert_2[0]-position[0]) <=1 and abs(vert_2[1]-position[1])<=1):
             z = vert_2[2]           
             return z
-        if (abs(vert_3[0]-position[0]) <=0.5 and abs(vert_3[1]-position[1])<=0.5):
+        if (abs(vert_3[0]-position[0]) <=1 and abs(vert_3[1]-position[1])<=1):
             z = vert_3[2]           
             return z
 
@@ -227,8 +226,7 @@ def createTextureGPUShape(shape, pipeli_3, path):
     return gpuShape
 
 def createColorCircle(N, r, g, b):
-    # Funcion para crear un circulo con un color personalizado
-    # Poligono de N lados 
+    # Funcion para crear un circulo con un color personalizado Poligono de N lados 
     vertices = [0, 0, 0, r, g, b]
     indices = []
 
@@ -301,14 +299,14 @@ def createColorPiece(r, g, b):
 
     return bs.Shape(vertices, indices)
 
-def createPiece(pipeli_3):
+def createPiece(pipeline):
 
     # Se crean las shapes en GPU
-    gpuPiece2 = createGPUShape(createColorPiece(0.9, 0.9, 0.1), pipeli_3) #Pieza trasera
-    gpuYellowQuad2 = createGPUShape(bs.createColorQuad(0.9, 0.9, 0.1), pipeli_3) 
-    gpuPiece1 = createGPUShape(createColorPiece(0.75, 0.75, 0.1), pipeli_3)#Pieza superpuesta
-    gpuYellowQuad1 = createGPUShape(bs.createColorQuad(0.75, 0.75, 0.1), pipeli_3) 
-    gpuPiece3 = createGPUShape(createColorCircle(30,0.9, 0.1, 0.1), pipeli_3)#Pieza extra
+    gpuPiece2 = createGPUShape(createColorPiece(0.9, 0.9, 0.1), pipeline) #Pieza trasera
+    gpuYellowQuad2 = createGPUShape(bs.createColorQuad(0.9, 0.9, 0.1), pipeline) 
+    gpuPiece1 = createGPUShape(createColorPiece(0.75, 0.75, 0.1), pipeline)#Pieza superpuesta
+    gpuYellowQuad1 = createGPUShape(bs.createColorQuad(0.75, 0.75, 0.1), pipeline) 
+    gpuPiece3 = createGPUShape(createColorCircle(30,0.9, 0.1, 0.1), pipeline)#Pieza extra
 
 #Pieza Trasera
     # Nodo de la circunfernecia de arriba
@@ -327,8 +325,8 @@ def createPiece(pipeli_3):
     windowNode2.childs = [gpuYellowQuad2]
 
     # Nodo de a figura final Grande
-    Piece2Node = sg.SceneGraphNode("Quad_T")
-    Piece2Node.childs = [windowNode2,PieceNode2_1,PieceNode2_2]
+    piezatrasera = sg.SceneGraphNode("Quad_T")
+    piezatrasera.childs = [windowNode2,PieceNode2_1,PieceNode2_2]
     
 #Pieza superpuesta
     # Nodo de la circunfernecia de arriba
@@ -347,8 +345,8 @@ def createPiece(pipeli_3):
     windowNode1.childs = [gpuYellowQuad1]
 
     # Nodo de a figura final
-    Piece1Node = sg.SceneGraphNode("Quad_S")
-    Piece1Node.childs = [windowNode1,PieceNode1_1,PieceNode1_2]
+    piezasuper = sg.SceneGraphNode("Quad_S")
+    piezasuper.childs = [windowNode1,PieceNode1_1,PieceNode1_2]
 
 #Pieza Extra
     # Nodo de la circunfernecia de arriba
@@ -367,11 +365,15 @@ def createPiece(pipeli_3):
     windowNode3.childs = [gpuYellowQuad2] #Se reutiliza
 
     # Nodo de a figura final
-    Piece3Node = sg.SceneGraphNode("Quad_S")
-    Piece3Node.childs = [windowNode3,PieceNode3_1,PieceNode3_2]
+    piezaextr = sg.SceneGraphNode("Quad_S")
+    piezaextr.childs = [windowNode3,PieceNode3_1,PieceNode3_2]
+
+    # Nodo que junta
+    PreFinalNodePiece = sg.SceneGraphNode("FinalPiece")
+    PreFinalNodePiece.childs = [piezatrasera,piezasuper,piezaextr]
 
     # Nodo padre 
     FinalNodePiece = sg.SceneGraphNode("FinalPiece")
-    FinalNodePiece.childs = [Piece2Node,Piece1Node,Piece3Node]
+    FinalNodePiece.childs = [PreFinalNodePiece]
 
     return FinalNodePiece

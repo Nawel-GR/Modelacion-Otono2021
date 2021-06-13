@@ -986,3 +986,5 @@ class SpotlightTexturePhongShaderProgram:
 
         # Unbind the current VAO
         glBindVertexArray(0)
+
+
