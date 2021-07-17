@@ -336,7 +336,7 @@ def createPiece(pipeline):
 
     # Nodo de la circunfernecia de la derecha
     PieceNode1_2 = sg.SceneGraphNode("Piece_S")
-    PieceNode1_2.transform = tr.matmul([tr.translate(0.01, 0.05, 0),tr.scale(0.8, 0.8, 1),tr.rotationZ(-1.57)])
+    PieceNode1_2.transform = tr.matmul([tr.translate(0.01, 0.05, 0),tr.scale(0.8, 0.8, 1)])
     PieceNode1_2.childs = [gpuPiece1]
 
     # Nodo Cuadrado

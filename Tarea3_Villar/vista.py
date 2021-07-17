@@ -24,7 +24,7 @@ class PolarCamera:
         self.up = np.array([0, 0, 1])            # vector up
         self.viewMatrix = None                   # Matriz de vista
     
-    # Añadir ángulo a la coordenada theta
+    # Añadir ángulo a la coordenada theta 
     def set_theta(self, delta):
         self.theta = (self.theta + delta) % (np.pi * 2)
 
