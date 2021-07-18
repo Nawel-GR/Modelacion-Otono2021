@@ -12,6 +12,8 @@ import grafica.lighting_shaders as ls
 import grafica.scene_graph as sg
 from shapes3d import *
 import newLightShaders as nl
+from shapes import *
+from model import *
 
 # Clase para manejar una camara que se mueve en coordenadas polares
 class PolarCamera:
@@ -170,12 +172,13 @@ if __name__ == "__main__":
 
     # Creating shapes on GPU memory
     gpuAxis = createGPUShape(mvpPipeline, bs.createAxis(4))
-
     
     #cube1 = createCube1(phongPipeline)
     #cube2 = createCube2(phongPipeline)
     #tex_sphere = createTexSphereNode(phongTexPipeline)
     scene = createScene(phongPipeline,mvpPipeline)
+
+    stick = createStick(mvpPipeline)
 
     Spheres = []
     i=0
