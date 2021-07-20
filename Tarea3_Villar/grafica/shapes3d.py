@@ -384,7 +384,6 @@ def createTextureNormalSphere(N):
                 c += 4
     return bs.Shape(vertices, indices)
 
-
 def createSphereNode(posx,posy,posz,r, g, b, pipeline):
     # Funcion para crear Grafo de una esfera de la escena, se separa en otro grafo, por si se quiere dibujar con otro material
     sphere = createGPUShape(pipeline, createColorNormalSphere(20, r,g,b)) # Shape de la esfera
@@ -423,3 +422,243 @@ def createTexSphereNode(pipeline):
     scaledSphere.childs = [sphereNode]
 
     return scaledSphere
+
+def createColorTriangle(r, g, b):
+    # Funcion para crear un triangulo con un color personalizado
+
+    # Defining the location and colors of each vertex  of the shape
+    vertices = [
+    #   positions        colors
+        -0.5, -0.5, 0.0,  r, g, b,
+         0.5, -0.5, 0.0,  r, g, b,
+         0.0,  0.5, 0.0,  r, g, b]
+
+    # Defining connections among vertices
+    # We have a triangle every 3 indices specified
+    indices = [0, 1, 2]
+
+    return bs.Shape(vertices, indices)
+
+def createColorCircle(N, r, g, b):
+    # Funcion para crear un circulo con un color personalizado
+    # Poligono de N lados 
+
+    # First vertex at the center, white color
+    vertices = [0, 0, 0, r, g, b]
+    indices = []
+
+    dtheta = 2 * math.pi / N
+
+    for i in range(N):
+        theta = i * dtheta
+
+        vertices += [
+            # vertex coordinates
+            0.5 * math.cos(theta), 0.5 * math.sin(theta), 0,
+
+            # color generates varying between 0 and 1
+                  r, g, b]
+
+        # A triangle is created using the center, this and the next vertex
+        indices += [0, i, i+1]
+
+    # The final triangle connects back to the second vertex
+    indices += [0, N, 1]
+
+    return bs.Shape(vertices, indices)
+
+def evalMixCurve0(N):
+    # Funcion para generar N puntos entre 0 y 1 de una curva personalizada
+    # Hermite + Bezier para modelar la superficie de un auto
+
+    # Puntos de Control
+    P0 = np.array([[-0.25, 0., 0]]).T
+    P1 = np.array([[-0.25, 0.25, 0]]).T
+    P2 = np.array([[0.25, 0.25, 0]]).T
+    P3 = np.array([[0.25, 0., 0]]).T
+    
+    # Matriz de Beziers
+    B_M = cv.bezierMatrix(P0, P1, P2, P3)
+
+    # Arreglo de numeros entre 0 y 1
+    ts = np.linspace(0.0, 1.0, N)
+    
+    # The computed value in R3 for each sample will be stored here
+    curve = np.ndarray(shape=(N, 3), dtype=float)
+    
+    # Se llenan los puntos de la curva
+    for i in range(len(ts)):
+        T = cv.generateT(ts[i])
+        curve[i] = np.matmul(B_M, T).T
+        
+    return curve
+
+def evalMixCurve1(N):
+    # Funcion para generar N puntos entre 0 y 1 de una curva personalizada
+    # Hermite + Bezier para modelar la superficie de un auto
+
+    # Puntos de Control
+    P0 = np.array([[-0.25, -0.2, 0]]).T
+    P1 = np.array([[-0.25, 0.0, 0]]).T
+    P2 = np.array([[0.25, 0.0, 0]]).T
+    P3 = np.array([[0.25, -0.2, 0]]).T
+    
+    # Matriz de Beziers
+    B_M = cv.bezierMatrix(P0, P1, P2, P3)
+
+    # Arreglo de numeros entre 0 y 1
+    ts = np.linspace(0.0, 1.0, N)
+    
+    # The computed value in R3 for each sample will be stored here
+    curve = np.ndarray(shape=(N, 3), dtype=float)
+    
+    # Se llenan los puntos de la curva
+    for i in range(len(ts)):
+        T = cv.generateT(ts[i])
+        curve[i] = np.matmul(B_M, T).T
+        
+    return curve
+
+def evalMixCurve2(N):
+    # Funcion para generar N puntos entre 0 y 1 de una curva personalizada
+    # Hermite + Bezier para modelar la superficie de un auto
+
+    # Puntos de Control
+    P0 = np.array([[-0.3, -0.25, 0]]).T
+    P1 = np.array([[-0.25, -0.3, 0]]).T
+    P2 = np.array([[0.25, -0.3, 0]]).T
+    P3 = np.array([[0.3, -0.25, 0]]).T
+    
+    # Matriz de Beziers
+    B_M = cv.bezierMatrix(P0, P1, P2, P3)
+
+    # Arreglo de numeros entre 0 y 1
+    ts = np.linspace(0.0, 1.0, N)
+    
+    # The computed value in R3 for each sample will be stored here
+    curve = np.ndarray(shape=(N, 3), dtype=float)
+    
+    # Se llenan los puntos de la curva
+    for i in range(len(ts)):
+        T = cv.generateT(ts[i])
+        curve[i] = np.matmul(B_M, T).T
+        
+    return curve
+
+def evalMixCurve3(N):
+    # Funcion para generar N puntos entre 0 y 1 de una curva personalizada
+    # Hermite + Bezier para modelar la superficie de un auto
+
+    # Puntos de Control
+    P0 = np.array([[-0.25, 0., 0]]).T
+    P1 = np.array([[-0.25, 0.1, 0]]).T
+    P2 = np.array([[0.25, 0.1, 0]]).T
+    P3 = np.array([[0.25, 0., 0]]).T
+    
+    # Matriz de Beziers
+    B_M = cv.bezierMatrix(P0, P1, P2, P3)
+
+    # Arreglo de numeros entre 0 y 1
+    ts = np.linspace(0.0, 1.0, N)
+    
+    # The computed value in R3 for each sample will be stored here
+    curve = np.ndarray(shape=(N, 3), dtype=float)
+    
+    # Se llenan los puntos de la curva
+    for i in range(len(ts)):
+        T = cv.generateT(ts[i])
+        curve[i] = np.matmul(B_M, T).T
+        
+    return curve
+
+def createWhite(r, g, b):
+    # Crea un shape del chasis de un auto a partir de una curva personalizada
+    vertices = []
+    indices = []
+    curve = evalMixCurve0(64) # Se obtienen los puntos de la curva
+    curve2 = evalMixCurve1(64) # Se obtienen los puntos de la curva
+    counter = 0 # Contador de vertices, para indicar los indices
+
+    # Se generan los vertices
+    for i in range(len(curve)-1):
+        c_0 = curve[i] # punto i de la curva
+        r_0 = curve2[i]# punto i de la recta
+        c_1 = curve[i + 1] # punto i + 1 de la curva
+        r_1 = curve2[i + 1] # punto i + 1 de la recta
+        vertices += [c_0[0], c_0[1], 0, r + 0.3, g + 0.3, b + 0.3]
+        vertices += [r_0[0], r_0[1], 0, r, g, b]
+        vertices += [c_1[0], c_1[1], 0, r + 0.3, g + 0.3, b + 0.3]
+        vertices += [r_1[0], r_1[1], 0, r, g, b]
+        indices += [counter + 0, counter +1, counter + 2]
+        indices += [counter + 2, counter + 3, counter + 1]
+        counter += 4
+
+    return bs.Shape(vertices, indices)
+
+def createWood(r, g, b):
+    # Crea un shape del chasis de un auto a partir de una curva personalizada
+    vertices = []
+    indices = []
+    curve = evalMixCurve3(64) # Curva arriba
+    curve2 = evalMixCurve2(64) # Curva abajo
+    counter = 0 # Contador de vertices, para indicar los indices
+
+    # Se generan los vertices
+    for i in range(len(curve)-1):
+        c_0 = curve[i] # punto i de la curva
+        r_0 = curve2[i] # punto i de la recta
+        c_1 = curve[i + 1] # punto i + 1 de la curva
+        r_1 = curve2[i+1] # punto i + 1 de la recta
+        vertices += [c_0[0], c_0[1], 0, r + 0.2, g + 0.2, b + 0.2]
+        vertices += [r_0[0], r_0[1], 0, r, g, b]
+        vertices += [c_1[0], c_1[1], 0, r + 0.2, g + 0.2, b + 0.2]
+        vertices += [r_1[0], r_1[1], 0, r, g, b]
+        indices += [counter + 0, counter +1, counter + 2]
+        indices += [counter + 2, counter + 3, counter + 1]
+        counter += 4
+
+    return bs.Shape(vertices, indices)
+
+def createStick(pipeline):
+    # Se crea la escena del auto de la pregunta 1
+
+    # Se crean las shapes en GPU
+    gpuWhitePol = createGPUShape(pipeline, createWhite(250/255, 250/255, 250/255) ) # Punta
+    gpuBrownPol = createGPUShape(pipeline, createWood(158/255, 128/255, 100/255)) # Palo largo
+    gpuBlackPol = createGPUShape(pipeline, createWhite(0/255, 0/255, 0/255)) #Adorno
+
+    # Nodo del palo grande
+    WoodNode = sg.SceneGraphNode("BrownStick")
+    WoodNode.transform = tr.matmul([tr.translate(0.,0.,0.) , tr.scale(0.25,2,0)])
+    WoodNode.childs = [gpuBrownPol]
+
+    # Nodo de la punta
+    WhiteNode = sg.SceneGraphNode("tip")
+    WhiteNode.transform = tr.matmul([tr.translate(0.,0.12,0.) , tr.scale(0.2,0.15,0)])
+    WhiteNode.childs = [gpuWhitePol]
+
+    # Nodo de Raya 1
+    DesignNode1 = sg.SceneGraphNode("design1")
+    DesignNode1.transform = tr.matmul([tr.translate(0.,-0.11,0.) , tr.scale(0.27,0.05,0)])
+    DesignNode1.childs = [gpuBlackPol]
+
+    # Nodo de Raya 2
+    DesignNode2 = sg.SceneGraphNode("design2")
+    DesignNode2.transform = tr.matmul([tr.translate(0.,-0.13,0.) , tr.scale(0.27,0.05,0)])
+    DesignNode2.childs = [gpuBlackPol]
+
+    # Nodo de Raya 3
+    DesignNode3 = sg.SceneGraphNode("design3")
+    DesignNode3.transform = tr.matmul([tr.translate(0.,-0.15,0.) , tr.scale(0.27,0.05,0)])
+    DesignNode3.childs = [gpuBlackPol]
+
+    # Union
+    StickNode = sg.SceneGraphNode("StickUnion")
+    StickNode.transform = tr.matmul([tr.scale(0.7,2,0),tr.translate(0,0.2,0)])
+    StickNode.childs = [WoodNode,WhiteNode,DesignNode1,DesignNode2,DesignNode3]
+
+    # Nodo padre 
+    FinalNode = sg.SceneGraphNode("Stick")
+    FinalNode.childs = [StickNode]
+
+    return FinalNode

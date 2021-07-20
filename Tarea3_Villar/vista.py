@@ -10,10 +10,8 @@ import grafica.easy_shaders as es
 import grafica.performance_monitor as pm
 import grafica.lighting_shaders as ls
 import grafica.scene_graph as sg
-from shapes3d import *
-import newLightShaders as nl
-from shapes import *
-from model import *
+import grafica.newLightShaders as nl
+from grafica.shapes3d import *
 
 # Clase para manejar una camara que se mueve en coordenadas polares
 class PolarCamera:

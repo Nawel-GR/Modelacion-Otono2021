@@ -8,8 +8,7 @@ import grafica.easy_shaders as es
 import grafica.transformations as tr
 import grafica.performance_monitor as pm
 import grafica.scene_graph as sg
-from shapes import *
-from model import *
+from grafica.shapes3d import *
 
 
 # We will use 32 bits data, so an integer has 4 bytes
