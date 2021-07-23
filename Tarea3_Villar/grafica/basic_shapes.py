@@ -1,4 +1,3 @@
-
 # coding=utf-8
 """Vertices and indices for a variety of simple shapes"""
 

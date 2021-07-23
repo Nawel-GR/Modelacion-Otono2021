@@ -8,7 +8,7 @@ import grafica.easy_shaders as es
 import grafica.transformations as tr
 import grafica.performance_monitor as pm
 import grafica.scene_graph as sg
-from grafica.shapes3d import *
+from Modelo import *
 
 
 # We will use 32 bits data, so an integer has 4 bytes
@@ -39,7 +39,6 @@ def on_key(window, key, scancode, action, mods):
 
     else:
         print('Unknown key')
-
 
 
 if __name__ == "__main__":
