@@ -1,5 +1,6 @@
 """ Funciones para crear distintas figuras y escenas en 3D """
 
+from typing_extensions import final
 import numpy as np
 import math
 from OpenGL.GL import *
@@ -158,155 +159,21 @@ def createScene(pipeline3D,pipeline2D):
 
     return trSceneNode
 
-def createCube1(pipeline):
-    # Funcion para crear Grafo de un objeto de la escena, se separa en otro grafo, por si se quiere dibujar con otro material
-    gpuGrayCube = createGPUShape(pipeline, bs.createColorNormalsCube(0.5, 0.5, 0.5)) # Shape del cubo gris
 
-    # Nodo del cubo gris
-    grayCubeNode = sg.SceneGraphNode("grayCube")
-    grayCubeNode.childs = [gpuGrayCube]
-
-    # Nodo del cubo escalado 
-    objectNode = sg.SceneGraphNode("object1")
-    objectNode.transform = tr.matmul([
-        tr.translate(0.25,-0.15,-0.25),
-        tr.rotationZ(np.pi*0.15),
-        tr.scale(0.2,0.2,0.5)
-    ])
-    objectNode.childs = [grayCubeNode]
-
-    # Nodo del del objeto escalado con el mismo valor de la escena base
-    scaledObject = sg.SceneGraphNode("object1")
-    scaledObject.transform = tr.scale(5, 5, 5)
-    scaledObject.childs = [objectNode]
-
-    return scaledObject
-
-def createCube2(pipeline):
-    # Funcion para crear Grafo de un objeto de la escena, se separa en otro grafo, por si se quiere dibujar con otro material
-    gpuGrayCube = createGPUShape(pipeline, bs.createColorNormalsCube(0.5, 0.5, 0.5)) # Shape del cubo gris
-
-    # Nodo del cubo gris
-    grayCubeNode = sg.SceneGraphNode("grayCube")
-    grayCubeNode.childs = [gpuGrayCube]
-
-    # Nodo del cubo escalado 
-    objectNode = sg.SceneGraphNode("object1")
-    objectNode.transform = tr.matmul([
-        tr.translate(-0.25,-0.15,-0.35),
-        tr.rotationZ(np.pi*-0.2),
-        tr.scale(0.3,0.3,0.3)
-    ])
-    objectNode.childs = [grayCubeNode]
-
-    # Nodo del del objeto escalado con el mismo valor de la escena base
-    scaledObject = sg.SceneGraphNode("object1")
-    scaledObject.transform = tr.scale(5, 5, 5)
-    scaledObject.childs = [objectNode]
-
-    return scaledObject
-
-def createColorNormalSphere(N, r, g, b):
-    # Funcion para crear una esfera con normales
-
-    vertices = []           # lista para almacenar los verices
-    indices = []            # lista para almacenar los indices
-    dTheta = 2 * np.pi /N   # angulo que hay entre cada iteracion de la coordenada theta
-    dPhi = 2 * np.pi /N     # angulo que hay entre cada iteracion de la coordenada phi
-    rho = 0.5               # radio de la esfera
-    c = 0                   # contador de vertices, para ayudar a indicar los indices
-
-    # Se recorre la coordenada theta
-    for i in range(N - 1):
-        theta = i * dTheta # angulo theta en esta iteracion
-        theta1 = (i + 1) * dTheta # angulo theta en la iteracion siguiente
-        # Se recorre la coordenada phi
-        for j in range(N):
-            phi = j*dPhi # angulo phi en esta iteracion
-            phi1 = (j+1)*dPhi # angulo phi en la iteracion siguiente
-
-            # Se crean los vertices necesarios son coordenadas esfericas para cada iteracion
-
-            # Vertice para las iteraciones actuales de theta (i) y phi (j) 
-            v0 = [rho*np.sin(theta)*np.cos(phi), rho*np.sin(theta)*np.sin(phi), rho*np.cos(theta)]
-            # Vertice para las iteraciones siguiente de theta (i + 1) y actual de phi (j) 
-            v1 = [rho*np.sin(theta1)*np.cos(phi), rho*np.sin(theta1)*np.sin(phi), rho*np.cos(theta1)]
-            # Vertice para las iteraciones actual de theta (i) y siguiente de phi (j + 1) 
-            v2 = [rho*np.sin(theta1)*np.cos(phi1), rho*np.sin(theta1)*np.sin(phi1), rho*np.cos(theta1)]
-            # Vertice para las iteraciones siguientes de theta (i + 1) y phi (j + 1) 
-            v3 = [rho*np.sin(theta)*np.cos(phi1), rho*np.sin(theta)*np.sin(phi1), rho*np.cos(theta)]
-            
-            # Se crean los vectores normales para cada vertice segun los valores de rho tongo 
-            n0 = [np.sin(theta)*np.cos(phi), np.sin(theta)*np.sin(phi), np.cos(theta)]
-            n1 = [np.sin(theta1)*np.cos(phi), np.sin(theta1)*np.sin(phi), np.cos(theta1)]
-            n2 = [np.sin(theta1)*np.cos(phi1), np.sin(theta1)*np.sin(phi1), np.cos(theta1)]
-            n3 = [np.sin(theta)*np.cos(phi1), np.sin(theta)*np.sin(phi1), np.cos(theta)]
-
-
-            # Creamos los triangulos superiores
-            #        v0
-            #       /  \
-            #      /    \
-            #     /      \
-            #    /        \
-            #   /          \
-            # v1 ---------- v2
-            if i == 0:
-                #           vertices              color    normales
-                vertices += [v0[0], v0[1], v0[2], r, g, b, n0[0], n0[1], n0[2]]
-                vertices += [v1[0], v1[1], v1[2], r, g, b, n1[0], n1[1], n1[2]]
-                vertices += [v2[0], v2[1], v2[2], r, g, b, n2[0], n2[1], n2[2]]
-                indices += [ c + 0, c + 1, c +2 ]
-                c += 3
-
-            # Creamos los triangulos inferiores
-            # v0 ---------- v3
-            #   \          /
-            #    \        /
-            #     \      /
-            #      \    /
-            #       \  /
-            #        v1
-            elif i == (N-2):
-                #           vertices              color    normales
-                vertices += [v0[0], v0[1], v0[2], r, g, b, n0[0], n0[1], n0[2]]
-                vertices += [v1[0], v1[1], v1[2], r, g, b, n1[0], n1[1], n1[2]]
-                vertices += [v3[0], v3[1], v3[2], r, g, b, n3[0], n3[1], n3[2]]
-                indices += [ c + 0, c + 1, c +2 ]
-                c += 3
-            
-            # Creamos los quads intermedios
-            #  v0 -------------- v3
-            #  | \                |
-            #  |    \             |
-            #  |       \          |
-            #  |          \       |
-            #  |             \    |
-            #  |                \ |
-            #  v1 -------------- v2
-            else: 
-                #           vertices              color    normales
-                vertices += [v0[0], v0[1], v0[2], r, g, b, n0[0], n0[1], n0[2]]
-                vertices += [v1[0], v1[1], v1[2], r, g, b, n1[0], n1[1], n1[2]]
-                vertices += [v2[0], v2[1], v2[2], r, g, b, n2[0], n2[1], n2[2]]
-                vertices += [v3[0], v3[1], v3[2], r, g, b, n3[0], n3[1], n3[2]]
-                indices += [ c + 0, c + 1, c +2 ]
-                indices += [ c + 2, c + 3, c + 0 ]
-                c += 4
-    return bs.Shape(vertices, indices)
-
-def createTextureNormalSphere(N):
+def createTextureNormalSphere(N,k,l):
     # Funcion para crear una esfera con normales y texturizada
 
     vertices = []           # lista para almacenar los verices
     indices = []            # lista para almacenar los indices
-    dTheta = 2 * np.pi /N   # angulo que hay entre cada iteracion de la coordenada theta
-    dPhi = 2 * np.pi /N     # angulo que hay entre cada iteracion de la coordenada phi
-    rho = 0.5               # radio de la esfera
+    dTheta =   np.pi /N   # angulo que hay entre cada iteracion de la coordenada theta
+    dPhi =   2* np.pi /N     # angulo que hay entre cada iteracion de la coordenada phi
+    rho = 0.3               # radio de la esfera
     c = 0                   # contador de vertices, para ayudar a indicar los indices
 
+
     # Se recorre la coordenada theta
-    for i in range(N - 1):
+    for i in range(N):
+        
         theta = i * dTheta # angulo theta en esta iteracion
         theta1 = (i + 1) * dTheta # angulo theta en la iteracion siguiente
          # Se recorre la coordenada phi
@@ -342,25 +209,25 @@ def createTextureNormalSphere(N):
             # v1 ---------- v2
             if i == 0:
                 #           vertices           UV coord    normales
-                vertices += [v0[0], v0[1], v0[2], 0, 1, n0[0], n0[1], n0[2]]
-                vertices += [v1[0], v1[1], v1[2], 1, 1, n1[0], n1[1], n1[2]]
-                vertices += [v2[0], v2[1], v2[2], 0.5, 0, n2[0], n2[1], n2[2]]
+                vertices += [v0[0], v0[1], v0[2], (k +( 0.5 + np.arctan2(v0[0],v0[2])/(2*np.pi)))/3  , (l +(0.5-np.arctan(v0[1]/rho*(2*np.pi/5))/np.pi))/6, n0[0], n0[1], n0[2]]
+                vertices += [v1[0], v1[1], v1[2], (k +(0.5 + np.arctan2(v1[0],v1[2])/(2*np.pi)))/3  , (l +(0.5-np.arctan(v1[1]/rho*(2*np.pi/5))/np.pi))/6, n1[0], n1[1], n1[2]]
+                vertices += [v2[0], v2[1], v2[2], (k +(0.5 + np.arctan2(v2[0],v2[2])/(2*np.pi)))/3  , (l +(0.5-np.arctan(v2[1]/rho*(2*np.pi/5))/np.pi))/6, n2[0], n2[1], n2[2]]
                 indices += [ c + 0, c + 1, c +2 ]
                 c += 3
             
             # Creamos los triangulos inferiores
             # v0 ---------- v3
-            #   \          /
+            #   \          /3
             #    \        /
             #     \      /
             #      \    /
             #       \  /
             #        v1
-            elif i == (N-2):
+            elif i == N:
                 #           vertices           UV coord    normales
-                vertices += [v0[0], v0[1], v0[2], 0, 0, n0[0], n0[1], n0[2]]
-                vertices += [v1[0], v1[1], v1[2], 0.5, 1, n1[0], n1[1], n1[2]]
-                vertices += [v3[0], v3[1], v3[2], 1, 0, n3[0], n3[1], n3[2]]
+                vertices += [v0[0], v0[1], v0[2],(k + (0.5+ np.arctan2(v0[0],v0[2])/(2*np.pi)))/3  , (l + (0.5-np.arctan(v0[1]/rho*(2*np.pi/5))/np.pi))/6, n0[0], n0[1], n0[2]]
+                vertices += [v1[0], v1[1], v1[2],(k + (0.5+ np.arctan2(v1[0],v1[2])/(2*np.pi)))/3  , (l + (0.5-np.arctan(v1[1]/rho*(2*np.pi/5))/np.pi))/6, n1[0], n1[1], n1[2]]
+                vertices += [v3[0], v3[1], v3[2],(k + (0.5+ np.arctan2(v3[0],v3[2])/(2*np.pi)))/3  , (l + (0.5-np.arctan(v3[1]/rho*(2*np.pi/5))/np.pi))/6, n3[0], n3[1], n3[2]]
                 indices += [ c + 0, c + 1, c +2 ]
                 c += 3
             
@@ -375,39 +242,24 @@ def createTextureNormalSphere(N):
             #  v1 -------------- v2
             else: 
                 #           vertices           UV coord    normales
-                vertices += [v0[0], v0[1], v0[2], 0, 0, n0[0], n0[1], n0[2]]
-                vertices += [v1[0], v1[1], v1[2], 0, 1, n1[0], n1[1], n1[2]]
-                vertices += [v2[0], v2[1], v2[2], 1, 1, n2[0], n2[1], n2[2]]
-                vertices += [v3[0], v3[1], v3[2], 0, 1, n3[0], n3[1], n3[2]]
+                vertices += [v0[0], v0[1], v0[2],(k+ (0.5 + np.arctan2(v0[0],v0[2])/(2*np.pi)))/3  , (l + (0.5-np.arctan(v0[1]/rho*(2*np.pi/5))/np.pi))/6, n0[0], n0[1], n0[2]]
+                vertices += [v1[0], v1[1], v1[2],(k+ (0.5 + np.arctan2(v1[0],v1[2])/(2*np.pi)))/3  , (l + (0.5-np.arctan(v1[1]/rho*(2*np.pi/5))/np.pi))/6, n1[0], n1[1], n1[2]]
+                vertices += [v2[0], v2[1], v2[2],(k+ (0.5 + np.arctan2(v2[0],v2[2])/(2*np.pi)))/3  , (l + (0.5-np.arctan(v2[1]/rho*(2*np.pi/5))/np.pi))/6, n2[0], n2[1], n2[2]]
+                vertices += [v3[0], v3[1], v3[2],(k+ (0.5 + np.arctan2(v3[0],v3[2])/(2*np.pi)))/3  , (l + (0.5-np.arctan(v3[1]/rho*(2*np.pi/5))/np.pi))/6, n3[0], n3[1], n3[2]]
                 indices += [ c + 0, c + 1, c +2 ]
                 indices += [ c + 2, c + 3, c + 0 ]
                 c += 4
     return bs.Shape(vertices, indices)
 
-def createSphereNode(posx,posy,posz,r, g, b, pipeline):
-    # Funcion para crear Grafo de una esfera de la escena, se separa en otro grafo, por si se quiere dibujar con otro material
-    sphere = createGPUShape(pipeline, createColorNormalSphere(20, r,g,b)) # Shape de la esfera
 
-    # Nodo de la esfera trasladado y escalado
-    sphereNode = sg.SceneGraphNode("sphere")
-    sphereNode.transform =tr.matmul([
-        tr.translate(posx,posy,posz),
-        tr.scale(0.1,0.1,0.1)
-    ])
-    sphereNode.childs = [sphere]
-
-    # Nodo del del objeto escalado con el mismo valor de la escena base
-    scaledSphere = sg.SceneGraphNode("sc_sphere")
-    scaledSphere.transform = tr.scale(5, 5, 5)
-    scaledSphere.childs = [sphereNode]
-
-    return scaledSphere
-
-#Creacion de bolas de billar 
 def createTexSphereNode(posx,posy,posz,pipeline,i,j):
     # Funcion para crear Grafo de una esfera texturizada de la escena, se separa en otro grafo, por si se quiere dibujar con otro material
-    sphere = createTextureGPUShape(createTextureNormalSphere_Pool(15,i,j), pipeline, "sprites/Balls.png") # Shape de la esfera texturizada
+    sphere = createTextureGPUShape(createTextureNormalSphere(15,i,j), pipeline, "sprites/Balls.png") # Shape de la esfera texturizada
 
+
+    rotationSphere = sg.SceneGraphNode("rot_sphere")
+    rotationSphere.transform = tr.identity()
+    rotationSphere.childs = [sphere]
     # Nodo de la esfera trasladado y escalado
     sphereNode = sg.SceneGraphNode("sphere")
     sphereNode.transform =tr.matmul([
@@ -415,7 +267,7 @@ def createTexSphereNode(posx,posy,posz,pipeline,i,j):
         tr.rotationY(-np.pi/2),
         tr.scale(0.3,0.3,0.3)
     ])
-    sphereNode.childs = [sphere]
+    sphereNode.childs = [rotationSphere]
 
     # Nodo del del objeto escalado con el mismo valor de la escena base
     scaledSphere = sg.SceneGraphNode("sc_sphere")
@@ -424,49 +276,24 @@ def createTexSphereNode(posx,posy,posz,pipeline,i,j):
 
     return scaledSphere
 
-def createColorTriangle(r, g, b):
-    # Funcion para crear un triangulo con un color personalizado
+def createShadowNode(posx,posy,posz,pipeline,i,j):
+    BlackCircle = createGPUShape(pipeline, bs.createColorCircle(20,0.,0.,0.)) # Shape del circulo negro
 
-    # Defining the location and colors of each vertex  of the shape
-    vertices = [
-    #   positions        colors
-        -0.5, -0.5, 0.0,  r, g, b,
-         0.5, -0.5, 0.0,  r, g, b,
-         0.0,  0.5, 0.0,  r, g, b]
+    # Nodo de la esfera trasladado y escalado
+    ShadowNode = sg.SceneGraphNode("shadow")
+    ShadowNode.transform =tr.matmul([
+        tr.translate(posx,posy,posz),
+        tr.rotationY(-np.pi/2),
+        tr.scale(0.3,0.3,1)
+    ])
+    ShadowNode.childs = [BlackCircle]
 
-    # Defining connections among vertices
-    # We have a triangle every 3 indices specified
-    indices = [0, 1, 2]
-
-    return bs.Shape(vertices, indices)
-
-def createColorCircle(N, r, g, b):
-    # Funcion para crear un circulo con un color personalizado
-    # Poligono de N lados 
-
-    # First vertex at the center, white color
-    vertices = [0, 0, 0, r, g, b]
-    indices = []
-
-    dtheta = 2 * math.pi / N
-
-    for i in range(N):
-        theta = i * dtheta
-
-        vertices += [
-            # vertex coordinates
-            0.5 * math.cos(theta), 0.5 * math.sin(theta), 0,
-
-            # color generates varying between 0 and 1
-                  r, g, b]
-
-        # A triangle is created using the center, this and the next vertex
-        indices += [0, i, i+1]
-
-    # The final triangle connects back to the second vertex
-    indices += [0, N, 1]
-
-    return bs.Shape(vertices, indices)
+    # Nodo del del objeto escalado con el mismo valor de la escena base
+    scaledShadow = sg.SceneGraphNode("sc_sphere")
+    scaledShadow.transform = tr.scale(5, 5,1)
+    scaledShadow.childs = [ShadowNode]
+    
+    return scaledShadow
 
 def evalMixCurve0(N):
     # Funcion para generar N puntos entre 0 y 1 de una curva personalizada
@@ -660,97 +487,11 @@ def createStick(pipeline):
 
     # Nodo padre 
     FinalNode = sg.SceneGraphNode("Stick")
+    FinalNode.transform =tr.matmul([
+        tr.rotationY(-np.pi/2),
+        tr.scale(0.3,0.3,1)
+    ])
     FinalNode.childs = [StickNode]
 
     return FinalNode
 
-def createTextureNormalSphere_Pool(N,k,l):
-    # Funcion para crear una esfera con normales y texturizada
-
-    vertices = []           # lista para almacenar los verices
-    indices = []            # lista para almacenar los indices
-    dTheta =   np.pi /N   # angulo que hay entre cada iteracion de la coordenada theta
-    dPhi =   2* np.pi /N     # angulo que hay entre cada iteracion de la coordenada phi
-    rho = 0.1               # radio de la esfera
-    c = 0                   # contador de vertices, para ayudar a indicar los indices
-
-
-    # Se recorre la coordenada theta
-    for i in range(N):
-        
-        theta = i * dTheta # angulo theta en esta iteracion
-        theta1 = (i + 1) * dTheta # angulo theta en la iteracion siguiente
-         # Se recorre la coordenada phi
-        for j in range(N):
-            phi = j*dPhi # angulo phi en esta iteracion
-            phi1 = (j+1)*dPhi # angulo phi en la iteracion siguiente
-
-            # Se crean los vertices necesarios son coordenadas esfericas para cada iteracion
-
-            # Vertice para las iteraciones actuales de theta (i) y phi (j) 
-            v0 = [rho*np.sin(theta)*np.cos(phi), rho*np.sin(theta)*np.sin(phi), rho*np.cos(theta)]
-            # Vertice para las iteraciones siguiente de theta (i + 1) y actual de phi (j) 
-            v1 = [rho*np.sin(theta1)*np.cos(phi), rho*np.sin(theta1)*np.sin(phi), rho*np.cos(theta1)]
-            # Vertice para las iteraciones actual de theta (i) y siguiente de phi (j + 1) 
-            v2 = [rho*np.sin(theta1)*np.cos(phi1), rho*np.sin(theta1)*np.sin(phi1), rho*np.cos(theta1)]
-            # Vertice para las iteraciones siguientes de theta (i + 1) y phi (j + 1) 
-            v3 = [rho*np.sin(theta)*np.cos(phi1), rho*np.sin(theta)*np.sin(phi1), rho*np.cos(theta)]
-
-            # Se crean los vectores normales para cada vertice segun los valores de rho tongo 
-            n0 = [np.sin(theta)*np.cos(phi), np.sin(theta)*np.sin(phi), np.cos(theta)]
-            n1 = [np.sin(theta1)*np.cos(phi), np.sin(theta1)*np.sin(phi), np.cos(theta1)]
-            n2 = [np.sin(theta1)*np.cos(phi1), np.sin(theta1)*np.sin(phi1), np.cos(theta1)]
-            n3 = [np.sin(theta)*np.cos(phi1), np.sin(theta)*np.sin(phi1), np.cos(theta)]
-
-
-            # Creamos los triangulos superiores
-            #        v0
-            #       /  \
-            #      /    \
-            #     /      \
-            #    /        \
-            #   /          \
-            # v1 ---------- v2
-            if i == 0:
-                #           vertices           UV coord    normales
-                vertices += [v0[0], v0[1], v0[2], (k +( 0.5 + np.arctan2(v0[0],v0[2])/(2*np.pi)))/3  , (l +(0.5-np.arctan(v0[1]/rho*(2*np.pi/5))/np.pi))/6, n0[0], n0[1], n0[2]]
-                vertices += [v1[0], v1[1], v1[2], (k +(0.5 + np.arctan2(v1[0],v1[2])/(2*np.pi)))/3  , (l +(0.5-np.arctan(v1[1]/rho*(2*np.pi/5))/np.pi))/6, n1[0], n1[1], n1[2]]
-                vertices += [v2[0], v2[1], v2[2], (k +(0.5 + np.arctan2(v2[0],v2[2])/(2*np.pi)))/3  , (l +(0.5-np.arctan(v2[1]/rho*(2*np.pi/5))/np.pi))/6, n2[0], n2[1], n2[2]]
-                indices += [ c + 0, c + 1, c +2 ]
-                c += 3
-            
-            # Creamos los triangulos inferiores
-            # v0 ---------- v3
-            #   \          /3
-            #    \        /
-            #     \      /
-            #      \    /
-            #       \  /
-            #        v1
-            elif i == N:
-                #           vertices           UV coord    normales
-                vertices += [v0[0], v0[1], v0[2],(k + (0.5+ np.arctan2(v0[0],v0[2])/(2*np.pi)))/3  , (l + (0.5-np.arctan(v0[1]/rho*(2*np.pi/5))/np.pi))/6, n0[0], n0[1], n0[2]]
-                vertices += [v1[0], v1[1], v1[2],(k + (0.5+ np.arctan2(v1[0],v1[2])/(2*np.pi)))/3  , (l + (0.5-np.arctan(v1[1]/rho*(2*np.pi/5))/np.pi))/6, n1[0], n1[1], n1[2]]
-                vertices += [v3[0], v3[1], v3[2],(k + (0.5+ np.arctan2(v3[0],v3[2])/(2*np.pi)))/3  , (l + (0.5-np.arctan(v3[1]/rho*(2*np.pi/5))/np.pi))/6, n3[0], n3[1], n3[2]]
-                indices += [ c + 0, c + 1, c +2 ]
-                c += 3
-            
-            # Creamos los quads intermedios
-            #  v0 -------------- v3
-            #  | \                |
-            #  |    \             |
-            #  |       \          |
-            #  |          \       |
-            #  |             \    |
-            #  |                \ |
-            #  v1 -------------- v2
-            else: 
-                #           vertices           UV coord    normales
-                vertices += [v0[0], v0[1], v0[2],(k+ (0.5 + np.arctan2(v0[0],v0[2])/(2*np.pi)))/3  , (l + (0.5-np.arctan(v0[1]/rho*(2*np.pi/5))/np.pi))/6, n0[0], n0[1], n0[2]]
-                vertices += [v1[0], v1[1], v1[2],(k+ (0.5 + np.arctan2(v1[0],v1[2])/(2*np.pi)))/3  , (l + (0.5-np.arctan(v1[1]/rho*(2*np.pi/5))/np.pi))/6, n1[0], n1[1], n1[2]]
-                vertices += [v2[0], v2[1], v2[2],(k+ (0.5 + np.arctan2(v2[0],v2[2])/(2*np.pi)))/3  , (l + (0.5-np.arctan(v2[1]/rho*(2*np.pi/5))/np.pi))/6, n2[0], n2[1], n2[2]]
-                vertices += [v3[0], v3[1], v3[2],(k+ (0.5 + np.arctan2(v3[0],v3[2])/(2*np.pi)))/3  , (l + (0.5-np.arctan(v3[1]/rho*(2*np.pi/5))/np.pi))/6, n3[0], n3[1], n3[2]]
-                indices += [ c + 0, c + 1, c +2 ]
-                indices += [ c + 2, c + 3, c + 0 ]
-                c += 4
-    return bs.Shape(vertices, indices)
