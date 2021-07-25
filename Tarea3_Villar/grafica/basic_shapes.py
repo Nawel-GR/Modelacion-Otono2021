@@ -490,3 +490,20 @@ def createTextureNormalsCube(image_filename):
          20,21,22,22,23,20] # Y-
 
     return Shape(vertices, indices, image_filename)
+
+def createColorTriangle(r, g, b):
+    # Funcion para crear un triangulo con un color personalizado
+
+    # Defining the location and colors of each vertex  of the shape
+    vertices = [
+    #   positions        colors
+        -0.5, -0.5, 0.0,  r, g, b,
+         0.5, -0.5, 0.0,  r, g, b,
+         0.0,  0.5, 0.0,  r, g, b]
+
+    # Defining connections among vertices
+    # We have a triangle every 3 indices specified
+    indices = [0, 1, 2]
+
+    return Shape(vertices, indices)
+

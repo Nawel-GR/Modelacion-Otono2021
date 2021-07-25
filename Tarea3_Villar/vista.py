@@ -7,11 +7,12 @@ import grafica.transformations as tr
 import grafica.basic_shapes as bs
 import grafica.easy_shaders as es
 import grafica.performance_monitor as pm
-#import grafica.lighting_shaders as ls
+import grafica.lighting_shaders as ls
 import grafica.scene_graph as sg
 import grafica.newLightShaders as nl
 import Controlador as crt
 import Modelo as mod
+import random 
 
 
 
@@ -23,7 +24,7 @@ if __name__ == "__main__":
 
     width = 800
     height = 800
-    title = "P0 - Scene"
+    title = "Tarea 3 Poll"
 
     window = glfw.create_window(width, height, title, None, None)
 
@@ -45,7 +46,7 @@ if __name__ == "__main__":
     mvpPipeline = es.SimpleModelViewProjectionShaderProgram()
 
     # Setting up the clear screen color
-    glClearColor(0.85, 0.85, 0.85, 1.0)
+    glClearColor(0.75, 0.75, 0.75, 1.0)
 
     # As we work in 3D, we need to check which part is in front,
     # and which one is at the back
@@ -54,19 +55,57 @@ if __name__ == "__main__":
     # Creating shapes on GPU memory
     gpuAxis = mod.createGPUShape(mvpPipeline, bs.createAxis(4))
     
-    
     scene = mod.createScene(phongPipeline,mvpPipeline)
 
     #vara = crt.objeto()
-    
-
+    '''
     Spheres = []
-
     balls = crt.Balls()
     white_b = crt.white_ball()
+    #shadow_White = crt.Shadow()
     balls.pos_inicial()   
+    '''
+    balls = []
+    white_b = crt.Balls(phongTexPipeline,[-1.0,0.0,-0.9],np.array([1.0,0.8,0.0]),0,5)
+
+    white_b.update_pos(0,0,0)
+    k = 0
+
+    for i in range(6):
+        for j in range(3):
+            #eliminable
+            velocity = np.array([
+            random.uniform(-1.0, 1.0),
+            random.uniform(-1.0, 1.0),
+            0.0
+            ])
+            balls.append(crt.Balls(phongTexPipeline,[1.0,0.0,-0.9],velocity,j,i))
+            
+            k += 1
+            if k >= 15:
+                break
+        if k >=15:
+            break
 
 
+    contador =[0,0]
+    trans_coord = [np.sin(np.pi/3) * 0.1 *2, -0.1]
+
+    for i in balls:
+        i.update_pos(0.15 + trans_coord[0]* contador[0],trans_coord[1]*contador[1], 0)
+
+        if contador[0] == contador[1]:
+            contador[0] += 1
+            contador[1] = -contador[0]
+
+        else:
+            contador[1] +=2 
+
+    vel_angular = np.array([
+        random.uniform(-0.2,0.2),
+        random.uniform(-0.2,0.2),
+        0.0
+    ],dtype= np.float32)
 
     perfMonitor = pm.PerformanceMonitor(glfw.get_time(), 0.5)
     # glfw will swap buffers as soon as possible
@@ -82,10 +121,13 @@ if __name__ == "__main__":
 
         # Using GLFW to check for input events
         glfw.poll_events()
+        perfMonitor.update(glfw.get_time())
 
-        controller.update_camera(delta)
+        #controller.update_camera(delta)
+        controller.update_camera(delta,np.array([white_b.position[0],white_b.position[1],0.0],dtype=np.float32))
         camera = controller.get_camera()
         viewMatrix = camera.update_view()
+        deltaTime = perfMonitor.getDeltaTime()
 
         # Setting up the projection transform
         projection = tr.perspective(60, float(width) / float(height), 0.1, 100)
@@ -99,17 +141,15 @@ if __name__ == "__main__":
         else:
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
 
-        # The axis is drawn without lighting effects
-        
-        
+        # The axis is drawn without lighting effects        
         glUseProgram(mvpPipeline.shaderProgram)
-        
         glUniformMatrix4fv(glGetUniformLocation(mvpPipeline.shaderProgram, "projection"), 1, GL_TRUE, projection)
         glUniformMatrix4fv(glGetUniformLocation(mvpPipeline.shaderProgram, "view"), 1, GL_TRUE, viewMatrix)
         glUniformMatrix4fv(glGetUniformLocation(mvpPipeline.shaderProgram, "model"), 1, GL_TRUE, tr.identity())
         #mvpPipeline.drawCall(gpuAxis, GL_LINES)
 
-        #vara.draw(mvpPipeline)
+        #vara.move(controller.Q_value,controller.W_value,0)
+        #vara.draw_call(mvpPipeline)
 
         lightingPipeline = phongPipeline
         lightposition = [0, 0, 2.3]
@@ -136,13 +176,8 @@ if __name__ == "__main__":
         glUniformMatrix4fv(glGetUniformLocation(lightingPipeline.shaderProgram, "view"), 1, GL_TRUE, viewMatrix)
 
         # Drawing
-
         sg.drawSceneGraphNode(scene, lightingPipeline, "model")
-
-        #for i in Spheres:
-        #    sg.drawSceneGraphNode(i, lightingPipeline, "model")
         
-
         # Se dibuja con el pipeline de texturas
         glUseProgram(phongTexPipeline.shaderProgram)
         glUniform3f(glGetUniformLocation(phongTexPipeline.shaderProgram, "La"), 0.25, 0.25, 0.25)
@@ -164,18 +199,50 @@ if __name__ == "__main__":
         glUniformMatrix4fv(glGetUniformLocation(phongTexPipeline.shaderProgram, "projection"), 1, GL_TRUE, projection)
         glUniformMatrix4fv(glGetUniformLocation(phongTexPipeline.shaderProgram, "view"), 1, GL_TRUE, viewMatrix)
         
-        white_b.move(controller.Q_value,controller.A_value,0)
+        #white_b.move(controller.Q_value,controller.W_value,0)
         
-        balls.draw_call(phongTexPipeline)
+        #balls.draw_call(phongTexPipeline)
+        #white_b.draw_call(phongTexPipeline)
+        
+        for ball in balls:
+            # moving each circle
+            ball.action(np.array([0.0, 0.0,0.0], dtype=np.float32),vel_angular, deltaTime)
+            ball.vel_angular()
+
+
+            # checking and processing collisions against the border
+            crt.collideWithBorder(ball)
+        
+
+            
+        white_b.action(np.array([0.0, 0.0,0.0], dtype=np.float32),np.array([0.0,0.0,0.0],dtype=np.float32), deltaTime)
+        crt.collideWithBorder_white(white_b)
+
+
+        for i in range(len(balls)):
+                for j in range(i+1, len(balls)):
+                    if crt.areColliding(balls[i], balls[j]):
+                        crt.collide(balls[i], balls[j])
+                    #elif areColliding(white_b,balls[j]):
+                    #    collide(white_b,balls[j])
+                    #elif areColliding(white_b,balls[i]):
+                    #    collide(white_b,balls[i])
+
+        for ball in balls:
+            ball.draw_call(phongTexPipeline)
+
+
         white_b.draw_call(phongTexPipeline)
-        
-        
+
+
+
+
         # Once the drawing is rendered, buffers are 
         # swap so an uncomplete drawing is never seen.
         glfw.swap_buffers(window)
 
     gpuAxis.clear()
     scene.clear()
-    for i in Spheres:
-        i.clear()
+    #for i in Spheres:
+    #    i.clear()
     glfw.terminate()
