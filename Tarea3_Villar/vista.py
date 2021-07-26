@@ -50,7 +50,7 @@ if __name__ == "__main__":
     vara = crt.objeto()
     sombra = crt.Shadow()
 
-    white_b = crt.Pool_Ball(phongTexPipeline,[-1.0,0.0,-0.9],np.array([1.0,0.8,0.0]),2,5)
+    white_b = crt.Pool_Ball(phongTexPipeline,[-1.0,0.0,-0.9],np.array([2.0,0.0,0.0]),2,5)
     white_b.move(0,0,0)
     
     balls = []
@@ -59,7 +59,7 @@ if __name__ == "__main__":
     k = 0
     for i in range(6):
         for j in range(3):
-            velocity = np.array([random.uniform(-0.5, 0.5), random.uniform(-0.5, 0.5), 0.0])
+            velocity = 0,0,0
             balls.append(crt.Pool_Ball(phongTexPipeline,[1.0,0.0,-0.9],velocity,j,i))
             shadows.append(crt.Shadow()) #Sombra de cada bola
             k += 1
@@ -144,7 +144,7 @@ if __name__ == "__main__":
         glUniformMatrix4fv(glGetUniformLocation(Pipeline.shaderProgram, "view"), 1, GL_TRUE, viewMatrix)
         glUniformMatrix4fv(glGetUniformLocation(Pipeline.shaderProgram, "model"), 1, GL_TRUE, tr.identity())
 
-        vara.move(white_b.position[0]+0.4,white_b.position[1],-0.8)
+        vara.move(white_b.position[0]-2.4,white_b.position[1],-0.8)
         vara.draw_call(Pipeline)
 
         #Sombra de la bola blanca
@@ -153,8 +153,9 @@ if __name__ == "__main__":
 
         #sombra de las demás pelotas
         for i in balls:
-            sombra.move(i.position[0]+2,i.position[1],-0.093)       
-            sombra.draw_call(Pipeline)
+            sombra.move(i.position[0]+2,i.position[1],-0.093)
+            if i.notinhole:       
+                sombra.draw_call(Pipeline)
 
         # Se dibuja con el pipeline de texturas
         glUseProgram(phongTexPipeline.shaderProgram)
@@ -181,20 +182,27 @@ if __name__ == "__main__":
             i.vel_angular()
             crt.collideWithBorder(i)
         
-        white_b.action(np.array([0.0, 0.0,0.0], dtype=np.float32),np.array([0.0,0.0,0.0],dtype=np.float32), deltaTime)
-        crt.collideWithBorder_w(white_b)
+        white_b.action(np.array([0., 0.,0.], dtype=np.float32),np.array([0.05,0.05,0.0],dtype=np.float32), deltaTime)
+        white_b.vel_angular()
+        crt.collideWithBorder2(white_b)
 
 
         for i in range(len(balls)):
             for j in range(i+1, len(balls)):
-                if crt.areColliding(balls[i], balls[j]):
+                if crt.areColliding(balls[i], balls[j]) and balls[i].notinhole and balls[j].notinhole:
                     crt.collide(balls[i], balls[j])
-            #if crt.areColliding(balls[i],white_b):
-            #    crt.collide(balls[i],white_b)
-
+            if crt.areColliding2(balls[i],white_b) and balls[i].notinhole:
+                crt.collide2(balls[i],white_b)
+            
+        for i in range(len(balls)):
+            if crt.inHole(balls[i]):
+                balls[i].notinhole = False
 
         for i in balls:
-            i.draw_call(phongTexPipeline)
+            if i.notinhole:
+                i.draw_call(phongTexPipeline)
+            else:
+                pass
 
         white_b.draw_call(phongTexPipeline)
 

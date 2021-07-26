@@ -207,9 +207,9 @@ def createTextureNormalSphere(N,k,l):
             # v1 ---------- v2
             if i == 0:
                 #           vertices           UV coord    normales
-                vertices += [v0[0], v0[1], v0[2], (k +( 0.5 + np.arctan2(v0[0],v0[2])/(2*np.pi)))/3  , (l +(0.5-np.arctan(v0[1]/rho*(2*np.pi/5))/np.pi))/6, n0[0], n0[1], n0[2]]
-                vertices += [v1[0], v1[1], v1[2], (k +(0.5 + np.arctan2(v1[0],v1[2])/(2*np.pi)))/3  , (l +(0.5-np.arctan(v1[1]/rho*(2*np.pi/5))/np.pi))/6, n1[0], n1[1], n1[2]]
-                vertices += [v2[0], v2[1], v2[2], (k +(0.5 + np.arctan2(v2[0],v2[2])/(2*np.pi)))/3  , (l +(0.5-np.arctan(v2[1]/rho*(2*np.pi/5))/np.pi))/6, n2[0], n2[1], n2[2]]
+                vertices += [v0[0], v0[1], v0[2], (k +( 0.5 + np.arctan2(v0[0],v0[2])/(2.2*np.pi)))/3  , (l +(0.5-np.arctan(v0[1]/rho*(2.2*np.pi/5))/np.pi))/6, n0[0], n0[1], n0[2]]
+                vertices += [v1[0], v1[1], v1[2], (k +(0.5 + np.arctan2(v1[0],v1[2])/(2.2*np.pi)))/3  , (l +(0.5-np.arctan(v1[1]/rho*(2.2*np.pi/5))/np.pi))/6, n1[0], n1[1], n1[2]]
+                vertices += [v2[0], v2[1], v2[2], (k +(0.5 + np.arctan2(v2[0],v2[2])/(2.2*np.pi)))/3  , (l +(0.5-np.arctan(v2[1]/rho*(2.2*np.pi/5))/np.pi))/6, n2[0], n2[1], n2[2]]
                 indices += [ c + 0, c + 1, c +2 ]
                 c += 3
             
@@ -223,9 +223,9 @@ def createTextureNormalSphere(N,k,l):
             #        v1
             elif i == N:
                 #           vertices           UV coord    normales
-                vertices += [v0[0], v0[1], v0[2],(k + (0.5+ np.arctan2(v0[0],v0[2])/(2*np.pi)))/3  , (l + (0.5-np.arctan(v0[1]/rho*(2*np.pi/5))/np.pi))/6, n0[0], n0[1], n0[2]]
-                vertices += [v1[0], v1[1], v1[2],(k + (0.5+ np.arctan2(v1[0],v1[2])/(2*np.pi)))/3  , (l + (0.5-np.arctan(v1[1]/rho*(2*np.pi/5))/np.pi))/6, n1[0], n1[1], n1[2]]
-                vertices += [v3[0], v3[1], v3[2],(k + (0.5+ np.arctan2(v3[0],v3[2])/(2*np.pi)))/3  , (l + (0.5-np.arctan(v3[1]/rho*(2*np.pi/5))/np.pi))/6, n3[0], n3[1], n3[2]]
+                vertices += [v0[0], v0[1], v0[2],(k + (0.5+ np.arctan2(v0[0],v0[2])/(2.2*np.pi)))/3  , (l + (0.5-np.arctan(v0[1]/rho*(2.2*np.pi/5))/np.pi))/6, n0[0], n0[1], n0[2]]
+                vertices += [v1[0], v1[1], v1[2],(k + (0.5+ np.arctan2(v1[0],v1[2])/(2.2*np.pi)))/3  , (l + (0.5-np.arctan(v1[1]/rho*(2.2*np.pi/5))/np.pi))/6, n1[0], n1[1], n1[2]]
+                vertices += [v3[0], v3[1], v3[2],(k + (0.5+ np.arctan2(v3[0],v3[2])/(2.2*np.pi)))/3  , (l + (0.5-np.arctan(v3[1]/rho*(2.2*np.pi/5))/np.pi))/6, n3[0], n3[1], n3[2]]
                 indices += [ c + 0, c + 1, c +2 ]
                 c += 3
             
@@ -240,10 +240,10 @@ def createTextureNormalSphere(N,k,l):
             #  v1 -------------- v2
             else: 
                 #           vertices           UV coord    normales
-                vertices += [v0[0], v0[1], v0[2],(k+ (0.5 + np.arctan2(v0[0],v0[2])/(2*np.pi)))/3  , (l + (0.5-np.arctan(v0[1]/rho*(2*np.pi/5))/np.pi))/6, n0[0], n0[1], n0[2]]
-                vertices += [v1[0], v1[1], v1[2],(k+ (0.5 + np.arctan2(v1[0],v1[2])/(2*np.pi)))/3  , (l + (0.5-np.arctan(v1[1]/rho*(2*np.pi/5))/np.pi))/6, n1[0], n1[1], n1[2]]
-                vertices += [v2[0], v2[1], v2[2],(k+ (0.5 + np.arctan2(v2[0],v2[2])/(2*np.pi)))/3  , (l + (0.5-np.arctan(v2[1]/rho*(2*np.pi/5))/np.pi))/6, n2[0], n2[1], n2[2]]
-                vertices += [v3[0], v3[1], v3[2],(k+ (0.5 + np.arctan2(v3[0],v3[2])/(2*np.pi)))/3  , (l + (0.5-np.arctan(v3[1]/rho*(2*np.pi/5))/np.pi))/6, n3[0], n3[1], n3[2]]
+                vertices += [v0[0], v0[1], v0[2],(k+ (0.5 + np.arctan2(v0[0],v0[2])/(2.2*np.pi)))/3  , (l + (0.5-np.arctan(v0[1]/rho*(2.2*np.pi/5))/np.pi))/6, n0[0], n0[1], n0[2]]
+                vertices += [v1[0], v1[1], v1[2],(k+ (0.5 + np.arctan2(v1[0],v1[2])/(2.2*np.pi)))/3  , (l + (0.5-np.arctan(v1[1]/rho*(2.2*np.pi/5))/np.pi))/6, n1[0], n1[1], n1[2]]
+                vertices += [v2[0], v2[1], v2[2],(k+ (0.5 + np.arctan2(v2[0],v2[2])/(2.2*np.pi)))/3  , (l + (0.5-np.arctan(v2[1]/rho*(2.2*np.pi/5))/np.pi))/6, n2[0], n2[1], n2[2]]
+                vertices += [v3[0], v3[1], v3[2],(k+ (0.5 + np.arctan2(v3[0],v3[2])/(2.2*np.pi)))/3  , (l + (0.5-np.arctan(v3[1]/rho*(2.2*np.pi/5))/np.pi))/6, n3[0], n3[1], n3[2]]
                 indices += [ c + 0, c + 1, c +2 ]
                 indices += [ c + 2, c + 3, c + 0 ]
                 c += 4
@@ -260,10 +260,7 @@ def createTexSphereNode(posx,posy,posz,pipeline,i,j):
     # Nodo de la esfera trasladado y escalado
     sphereNode = sg.SceneGraphNode("sphere")
     sphereNode.transform =tr.matmul([
-        tr.translate(posx,posy,posz),
-        tr.rotationY(-np.pi/2),
-        tr.scale(0.3,0.3,0.3)
-    ])
+        tr.translate(posx,posy,posz), tr.rotationY(-np.pi/2), tr.scale(0.3,0.3,0.3)])
     sphereNode.childs = [rotationSphere]
 
     # Nodo del del objeto escalado con el mismo valor de la escena base
@@ -278,11 +275,7 @@ def createShadowNode(posx,posy,posz,pipeline):
 
     # Nodo de la esfera trasladado y escalado
     ShadowNode = sg.SceneGraphNode("shadow")
-    ShadowNode.transform =tr.matmul([
-        tr.translate(posx,posy,posz),
-        #tr.rotationY(-np.pi/2),
-        tr.scale(0.15,0.15,0.15)
-    ])
+    ShadowNode.transform =tr.matmul([tr.translate(posx,posy,posz),tr.scale(0.15,0.15,0.15)])
     ShadowNode.childs = [BlackCircle]
 
     # Nodo del del objeto escalado con el mismo valor de la escena base
@@ -293,9 +286,6 @@ def createShadowNode(posx,posy,posz,pipeline):
     return scaledShadow
 
 def evalMixCurve0(N):
-    # Funcion para generar N puntos entre 0 y 1 de una curva personalizada
-    # Hermite + Bezier para modelar la superficie de un auto
-
     # Puntos de Control
     P0 = np.array([[-0.25, 0., 0]]).T
     P1 = np.array([[-0.25, 0.25, 0]]).T
@@ -319,9 +309,6 @@ def evalMixCurve0(N):
     return curve
 
 def evalMixCurve1(N):
-    # Funcion para generar N puntos entre 0 y 1 de una curva personalizada
-    # Hermite + Bezier para modelar la superficie de un auto
-
     # Puntos de Control
     P0 = np.array([[-0.25, -0.2, 0]]).T
     P1 = np.array([[-0.25, 0.0, 0]]).T
@@ -345,9 +332,6 @@ def evalMixCurve1(N):
     return curve
 
 def evalMixCurve2(N):
-    # Funcion para generar N puntos entre 0 y 1 de una curva personalizada
-    # Hermite + Bezier para modelar la superficie de un auto
-
     # Puntos de Control
     P0 = np.array([[-0.3, -0.25, 0]]).T
     P1 = np.array([[-0.25, -0.3, 0]]).T
@@ -371,9 +355,6 @@ def evalMixCurve2(N):
     return curve
 
 def evalMixCurve3(N):
-    # Funcion para generar N puntos entre 0 y 1 de una curva personalizada
-    # Hermite + Bezier para modelar la superficie de un auto
-
     # Puntos de Control
     P0 = np.array([[-0.25, 0., 0]]).T
     P1 = np.array([[-0.25, 0.1, 0]]).T
