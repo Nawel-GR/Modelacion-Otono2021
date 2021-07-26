@@ -28,91 +28,88 @@ def createTextureGPUShape(shape, pipeline, path):
 
 def createScene(pipeline3D,pipeline2D):
     # Se crean las shapes en GPU
-    gpuGreenCube = createGPUShape(pipeline3D, bs.createColorNormalsCube(55/255, 97/255, 54/255)) # Shape del cubo verde
-    gpuBrownCube = createGPUShape(pipeline3D, bs.createColorNormalsCube(128/255, 64/255, 0/255)) # Shape del cubo café
-    gpuBlackQuad = createGPUShape(pipeline2D, bs.createColorCircle(20,0.,0.,0.)) # Shape del circulo negro
-    gpuGreenPrism = createGPUShape(pipeline3D, bs.createColorPrism(35/255, 77/255, 34/255)) # Shape del prisma verde
+    gpuBlueCube = createGPUShape(pipeline3D, bs.createColorNormalsCube(59/255, 131/255, 189/255)) # Shape del cubo azul
+    gpuBlackCube = createGPUShape(pipeline3D, bs.createColorNormalsCube(30/255, 40/255, 20/255)) # Shape del cubo negro
+    gpuBlackCircle = createGPUShape(pipeline2D, bs.createColorCircle(20,0.,0.,0.)) # Shape del circulo negro
+    gpuBluePrism = createGPUShape(pipeline3D, bs.createColorPrism(10/255, 73/255, 123/255)) # Shape del prisma verde
 
     # Nodo Prisma
-    GreenPrismNode = sg.SceneGraphNode("GreenPrism")
-    GreenPrismNode.childs = [gpuGreenPrism]
+    BluePrismNode = sg.SceneGraphNode("BluePrism")
+    BluePrismNode.childs = [gpuBluePrism]
 
     # Nodo del cubo Verde
-    GreenCubeNode = sg.SceneGraphNode("GreenCube")
-    GreenCubeNode.childs = [gpuGreenCube]
+    BlueCubeNode = sg.SceneGraphNode("BlueCube")
+    BlueCubeNode.childs = [gpuBlueCube]
 
     # Nodo del cubo Café
-    BrownCubeNode = sg.SceneGraphNode("BrownCube")
-    BrownCubeNode.childs = [gpuBrownCube]
+    blackCubeNode = sg.SceneGraphNode("BlackCube")
+    blackCubeNode.childs = [gpuBlackCube]
 
     # Nodo del circulo negro
-    BlackQuadNode = sg.SceneGraphNode("BlackQuad")
-    BlackQuadNode.childs = [gpuBlackQuad]
+    BlackQuadNode = sg.SceneGraphNode("BlackCircle")
+    BlackQuadNode.childs = [gpuBlackCircle]
 
     # Nodo de la mesa
-    FloorNode = sg.SceneGraphNode("floor")
+    FloorNode = sg.SceneGraphNode("Floor")
     FloorNode.transform = tr.matmul([tr.translate(0, 0, -1), tr.scale(6, 4, 0.01)])
-    FloorNode.childs = [GreenCubeNode]
-
+    FloorNode.childs = [BlueCubeNode]
 
     #Piezas Madera
     # Standar X
-    XBrownPieceNode = sg.SceneGraphNode("XbrownPiece")
-    XBrownPieceNode.transform = tr.matmul([tr.translate(0, 0, -0.93), tr.scale(6.16, 0.15, 0.15)])
-    XBrownPieceNode.childs = [BrownCubeNode]
+    blackPieceNode = sg.SceneGraphNode("XblackPiece")
+    blackPieceNode.transform = tr.matmul([tr.translate(0, 0, -0.93), tr.scale(6.16, 0.15, 0.15)])
+    blackPieceNode.childs = [blackCubeNode]
 
-    XGreenPrismNode1 = sg.SceneGraphNode("XGreenPrism1")
-    XGreenPrismNode1.transform = tr.matmul([tr.translate(1.3, -0.2, -0.93), tr.scale(2.5, 0.35, 0.1)])
-    XGreenPrismNode1.childs = [GreenPrismNode]
+    BluePrismNode1 = sg.SceneGraphNode("XBluePrism1")
+    BluePrismNode1.transform = tr.matmul([tr.translate(1.3, -0.2, -0.93), tr.scale(2.4, 0.35, 0.1)])
+    BluePrismNode1.childs = [BluePrismNode]
 
-    XGreenPrismNode2 = sg.SceneGraphNode("XGreenPrism2")
-    XGreenPrismNode2.transform = tr.matmul([tr.translate(-1.3, -0.2, -0.93), tr.scale(2.5, 0.35, 0.1)])
-    XGreenPrismNode2.childs = [GreenPrismNode]
+    BluePrismNode2 = sg.SceneGraphNode("XBluePrism2")
+    BluePrismNode2.transform = tr.matmul([tr.translate(-1.3, -0.2, -0.93), tr.scale(2.4, 0.35, 0.1)])
+    BluePrismNode2.childs = [BluePrismNode]
 
     # Pairs in X
-    XBrownPieceNodeRight = sg.SceneGraphNode("XBrownPieceRight")
-    XBrownPieceNodeRight.transform = tr.matmul([tr.translate(0, 2, 0)])
-    XBrownPieceNodeRight.childs = [XBrownPieceNode,XGreenPrismNode1,XGreenPrismNode2]
+    blackPieceNodeR = sg.SceneGraphNode("blackPiece1")
+    blackPieceNodeR.transform = tr.matmul([tr.translate(0, 2, 0)])
+    blackPieceNodeR.childs = [blackPieceNode,BluePrismNode1,BluePrismNode2]
     
-    XBrownPieceNodeLeft = sg.SceneGraphNode("XBrownPieceLeft")
-    XBrownPieceNodeLeft.transform = tr.matmul([tr.translate(0, -2, 0), tr.rotationZ(3.14)])
-    XBrownPieceNodeLeft.childs = [XBrownPieceNode,XGreenPrismNode1,XGreenPrismNode2]
+    blackPieceNodeL = sg.SceneGraphNode("blackPiece2")
+    blackPieceNodeL.transform = tr.matmul([tr.translate(0, -2, 0), tr.rotationZ(3.14)])
+    blackPieceNodeL.childs = [blackPieceNode,BluePrismNode1,BluePrismNode2]
 
     # Final Pair in X
-    XBrownPairPieces = sg.SceneGraphNode("XBrownPair")
-    XBrownPairPieces.childs = [XBrownPieceNodeLeft,XBrownPieceNodeRight]
+    XblackPairPieces = sg.SceneGraphNode("blackPair")
+    XblackPairPieces.childs = [blackPieceNodeL,blackPieceNodeR]
 
     # Standar Y
-    YBrownPieceNode = sg.SceneGraphNode("YbrownPiece")
-    YBrownPieceNode.transform = tr.matmul([tr.translate(0, 0, -0.93), tr.scale(0.15, 4, 0.15)])
-    YBrownPieceNode.childs = [BrownCubeNode]
+    blackPieceNode2 = sg.SceneGraphNode("YblackPiece")
+    blackPieceNode2.transform = tr.matmul([tr.translate(0, 0, -0.93), tr.scale(0.15, 4, 0.15)])
+    blackPieceNode2.childs = [blackCubeNode]
 
-    YGreenPrismNode = sg.SceneGraphNode("YGreenPrism")
-    YGreenPrismNode.transform = tr.matmul([tr.translate(-0.2, 0, -0.93), tr.scale(0.35, 3.5, 0.1), tr.rotationZ(-1.57)])
-    YGreenPrismNode.childs = [GreenPrismNode]
+    BluePrismNode3 = sg.SceneGraphNode("YBluePrism3")
+    BluePrismNode3.transform = tr.matmul([tr.translate(-0.2, 0, -0.93), tr.scale(0.35, 3.4, 0.1), tr.rotationZ(-1.57)])
+    BluePrismNode3.childs = [BluePrismNode]
 
     # Final Pair in Y
-    YBrownPieceNodeUp = sg.SceneGraphNode("YBrownPieceUp")
-    YBrownPieceNodeUp.transform = tr.matmul([tr.translate(3., 0, 0)])
-    YBrownPieceNodeUp.childs = [YBrownPieceNode,YGreenPrismNode]
+    blackPieceNodeUp = sg.SceneGraphNode("blackPieceUp")
+    blackPieceNodeUp.transform = tr.matmul([tr.translate(3., 0, 0)])
+    blackPieceNodeUp.childs = [blackPieceNode2,BluePrismNode3]
     
-    YBrownPieceNodeDown = sg.SceneGraphNode("YBrownPieceDown")
-    YBrownPieceNodeDown.transform = tr.matmul([tr.translate(-3., 0, 0), tr.rotationZ(3.14)])
-    YBrownPieceNodeDown.childs = [YBrownPieceNode,YGreenPrismNode]
+    blackPieceNodeDown = sg.SceneGraphNode("blackPieceDown")
+    blackPieceNodeDown.transform = tr.matmul([tr.translate(-3., 0, 0), tr.rotationZ(3.14)])
+    blackPieceNodeDown.childs = [blackPieceNode2,BluePrismNode3]
 
-    YBrownPairPieces = sg.SceneGraphNode("FinalYpair")
-    YBrownPairPieces.childs = [YBrownPieceNodeUp,YBrownPieceNodeDown]
-
+    YblackPairPieces = sg.SceneGraphNode("FinalYpair")
+    YblackPairPieces.childs = [blackPieceNodeUp,blackPieceNodeDown]
 
     # Wood Pieces
-    WoodPieces = sg.SceneGraphNode("YBrownPair")
-    WoodPieces.childs = [YBrownPairPieces,XBrownPairPieces]
+    WoodPieces = sg.SceneGraphNode("YblackPair")
+    WoodPieces.childs = [YblackPairPieces,XblackPairPieces]
 
     #Hoyos
-
     # Nodo del hoyo negro
     HoleNode = sg.SceneGraphNode("hole")
-    HoleNode.transform = tr.scale(0.3,0.3,0)
+    HoleNode.transform = tr.scale(0.4,0.4,0)
     HoleNode.childs = [BlackQuadNode]
 
     # Hole Right
@@ -144,9 +141,13 @@ def createScene(pipeline3D,pipeline2D):
     UndHolesNode.transform = tr.matmul([tr.translate(-2.65, 0., 0.)])
     UndHolesNode.childs = [PairHoleNode]
     
+    # HolesGroup
+    HolesGroupNode = sg.SceneGraphNode("holesgroup")
+    HolesGroupNode.childs = [UpHolesNode,BetHolesNode,UndHolesNode,]
+
     # Nodo de la mesa
     TableNode = sg.SceneGraphNode("table")
-    TableNode.childs = [FloorNode,UpHolesNode,BetHolesNode,UndHolesNode,WoodPieces] 
+    TableNode.childs = [FloorNode,WoodPieces,HolesGroupNode] 
     
     # Nodo de la escena para realizar un escalamiento
     sceneNode = sg.SceneGraphNode("scene")
@@ -158,7 +159,6 @@ def createScene(pipeline3D,pipeline2D):
     trSceneNode.childs = [sceneNode]
 
     return trSceneNode
-
 
 def createTextureNormalSphere(N,k,l):
     # Funcion para crear una esfera con normales y texturizada
@@ -180,8 +180,6 @@ def createTextureNormalSphere(N,k,l):
         for j in range(N):
             phi = j*dPhi # angulo phi en esta iteracion
             phi1 = (j+1)*dPhi # angulo phi en la iteracion siguiente
-
-            # Se crean los vertices necesarios son coordenadas esfericas para cada iteracion
 
             # Vertice para las iteraciones actuales de theta (i) y phi (j) 
             v0 = [rho*np.sin(theta)*np.cos(phi), rho*np.sin(theta)*np.sin(phi), rho*np.cos(theta)]
@@ -251,7 +249,6 @@ def createTextureNormalSphere(N,k,l):
                 c += 4
     return bs.Shape(vertices, indices)
 
-
 def createTexSphereNode(posx,posy,posz,pipeline,i,j):
     # Funcion para crear Grafo de una esfera texturizada de la escena, se separa en otro grafo, por si se quiere dibujar con otro material
     sphere = createTextureGPUShape(createTextureNormalSphere(15,i,j), pipeline, "sprites/Balls.png") # Shape de la esfera texturizada
@@ -276,15 +273,15 @@ def createTexSphereNode(posx,posy,posz,pipeline,i,j):
 
     return scaledSphere
 
-def createShadowNode(posx,posy,posz,pipeline,i,j):
+def createShadowNode(posx,posy,posz,pipeline):
     BlackCircle = createGPUShape(pipeline, bs.createColorCircle(20,0.,0.,0.)) # Shape del circulo negro
 
     # Nodo de la esfera trasladado y escalado
     ShadowNode = sg.SceneGraphNode("shadow")
     ShadowNode.transform =tr.matmul([
         tr.translate(posx,posy,posz),
-        tr.rotationY(-np.pi/2),
-        tr.scale(0.3,0.3,1)
+        #tr.rotationY(-np.pi/2),
+        tr.scale(0.15,0.15,0.15)
     ])
     ShadowNode.childs = [BlackCircle]
 
@@ -448,12 +445,10 @@ def createWood(r, g, b):
     return bs.Shape(vertices, indices)
 
 def createStick(pipeline):
-    # Se crea la escena del auto de la pregunta 1
-
     # Se crean las shapes en GPU
-    gpuWhitePol = createGPUShape(pipeline, createWhite(250/255, 250/255, 250/255) ) # Punta
-    gpuBrownPol = createGPUShape(pipeline, createWood(158/255, 128/255, 100/255)) # Palo largo
-    gpuBlackPol = createGPUShape(pipeline, createWhite(0/255, 0/255, 0/255)) #Adorno
+    gpuWhitePol = createGPUShape(pipeline, createWhite(250/255, 250/255, 250/255)) # Punta
+    gpuBrownPol = createGPUShape(pipeline,createWood(158/255, 128/255, 100/255)) # Palo largo
+    gpuBlackPol = createGPUShape(pipeline,createWhite(0/255, 0/255, 0/255)) # Adorno
 
     # Nodo del palo grande
     WoodNode = sg.SceneGraphNode("BrownStick")
@@ -462,7 +457,7 @@ def createStick(pipeline):
 
     # Nodo de la punta
     WhiteNode = sg.SceneGraphNode("tip")
-    WhiteNode.transform = tr.matmul([tr.translate(0.1,0.12,0.) , tr.scale(0.2,0.15,0)])
+    WhiteNode.transform = tr.matmul([tr.translate(0.,0.13,0.) , tr.scale(0.15,0.1,0)])
     WhiteNode.childs = [gpuWhitePol]
 
     # Nodo de Raya 1
@@ -480,18 +475,19 @@ def createStick(pipeline):
     DesignNode3.transform = tr.matmul([tr.translate(0.,-0.15,0.) , tr.scale(0.27,0.05,0)])
     DesignNode3.childs = [gpuBlackPol]
 
+    # Union de Design
+    DesignsNode = sg.SceneGraphNode("designsunion")
+    DesignsNode.childs = [DesignNode1,DesignNode2,DesignNode3]
+
     # Union
     StickNode = sg.SceneGraphNode("StickUnion")
-    StickNode.transform = tr.matmul([tr.scale(0.7,2,0),tr.translate(0,0.2,0)])
-    StickNode.childs = [WoodNode,WhiteNode,DesignNode1,DesignNode2,DesignNode3]
+    StickNode.transform = tr.matmul([tr.translate(0.,0.5,0.) , tr.scale(0.5,2.6,0) ])
+    StickNode.childs = [WoodNode,WhiteNode,DesignsNode]
 
     # Nodo padre 
-    FinalNode = sg.SceneGraphNode("Stick")
-    FinalNode.transform =tr.matmul([
-        tr.rotationY(-np.pi/2),
-        tr.scale(0.3,0.3,1)
-    ])
-    FinalNode.childs = [StickNode]
+    carNode = sg.SceneGraphNode("Stick")
+    carNode.childs = [StickNode]
 
-    return FinalNode
+    return carNode
+
 

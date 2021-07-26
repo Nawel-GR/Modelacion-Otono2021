@@ -1,7 +1,12 @@
-""" P1 [Modelación con curvas] """
+'''
+Stick
 
+Vara que no está implementada correctamente en el juego, sin embargo fue de 
+las primeras cosas que modelé jerárquicamente. Por honor al tiempo dejo este archivo 
+para poder apreciar la stick del pool. (son las ultimas funciones de Modelo, desde evalmix0)
+
+'''
 import glfw
-import OpenGL.GL.shaders
 import numpy as np
 import grafica.basic_shapes as bs
 import grafica.easy_shaders as es
@@ -11,21 +16,15 @@ import grafica.scene_graph as sg
 from Modelo import *
 
 
-# We will use 32 bits data, so an integer has 4 bytes
-# 1 byte = 8 bits
 SIZE_IN_BYTES = 4
-
-# A class to store the application control
 class Controller:
     def __init__(self):
         self.fillPolygon = True
-
 
 # we will use the global controller as communication with the callback function
 controller = Controller()
 
 def on_key(window, key, scancode, action, mods):
-
     if action != glfw.PRESS:
         return
     
@@ -39,7 +38,6 @@ def on_key(window, key, scancode, action, mods):
 
     else:
         print('Unknown key')
-
 
 if __name__ == "__main__":
 
@@ -58,18 +56,15 @@ if __name__ == "__main__":
         glfw.set_window_should_close(window, True)
 
     glfw.make_context_current(window)
-
-    # Connecting the callback function 'on_key' to handle keyboard events
     glfw.set_key_callback(window, on_key)
 
-    # Creating our shader program and telling OpenGL to use it
+    #Pipeline
     pipeline = es.SimpleTransformShaderProgram()
     glUseProgram(pipeline.shaderProgram)
 
     # Setting up the clear screen color
-    glClearColor(0.5, 0.5, 0.5, 1.0)
+    glClearColor(0.3, 0.3, 0.3, 1.0)
 
-    # Nodo con el auto, funcion se encuentra en shapes.py
     stick = createStick(pipeline)
 
     perfMonitor = pm.PerformanceMonitor(glfw.get_time(), 0.5)
@@ -96,7 +91,6 @@ if __name__ == "__main__":
         else:
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
 
-        # Clearing the screen
         glClear(GL_COLOR_BUFFER_BIT)
 
         # Dibujamos el nodo del auto
@@ -105,5 +99,4 @@ if __name__ == "__main__":
         # Once the drawing is rendered, buffers are swap so an uncomplete drawing is never seen.
         glfw.swap_buffers(window)
 
-    
     glfw.terminate()
